@@ -6,9 +6,8 @@ public class DataModelJson {
     public int[] finish;
     public String[] name;
     public int[] channel;
-    public double[] red;
-    public double[] green;
-    public double[] blue;
+    public String[] color;
+    public String[] label_color;
 
     public DataModelJson(){}
 
@@ -18,8 +17,7 @@ public class DataModelJson {
         this.finish = new int[marks];
         this.name = new String[marks];
         this.channel = new int[marks];
-        this.red = new double[marks];
-        this.green = new double[marks];
-        this.blue = new double[marks];
+        this.color = new String[marks];
+        this.label_color = new String[marks];
     }
 }

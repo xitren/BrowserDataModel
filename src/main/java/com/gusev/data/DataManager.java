@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.gusev.data.offline.StaticDataContainer;
 import com.gusev.data.online.DynamicDataContainer;
-import javafx.scene.chart.XYChart;
 
 import java.io.*;
 import java.util.Iterator;
@@ -39,13 +38,13 @@ public class DataManager<T extends DataContainer> {
     }
 
     public void addMark(int ch, int start, int finish, String name,
-                        double red, double green, double blue) {
-        marks.add(new Mark(ch, start, finish, name, red, green, blue));
+                        String color, String label_color) {
+        marks.add(new Mark(ch, start, finish, name, color, label_color));
     }
 
     public void addGlobalMark(int start, int finish, String name,
-                              double red, double green, double blue) {
-        marks.add(new Mark(-1, start, finish, name, red, green, blue));
+                              String color, String label_color) {
+        marks.add(new Mark(-1, start, finish, name, color, label_color));
     }
 
     public DataManager(String filename) throws IOException {
@@ -59,7 +58,7 @@ public class DataManager<T extends DataContainer> {
         }
         for (int i=0;i < data.name.length;i++) {
             marks.add(new Mark(data.channel[i], data.start[i], data.finish[i], data.name[i],
-                    data.red[i], data.green[i], data.blue[i]));
+                    data.color[i], data.label_color[i]));
         }
     }
 
@@ -79,9 +78,8 @@ public class DataManager<T extends DataContainer> {
             data.finish[i] = dlds.finish;
             data.name[i] = dlds.name;
             data.channel[i] = dlds.channel;
-            data.red[i] = dlds.red;
-            data.green[i] = dlds.green;
-            data.blue[i] = dlds.blue;
+            data.color[i] = dlds.color;
+            data.label_color[i] = dlds.label_color;
             i++;
         }
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -132,27 +130,6 @@ public class DataManager<T extends DataContainer> {
     public void cut(int start, int size) {
         for (int i=0;i < dataLines.size();i++) {
             dataLines.get(i).cut(start, size);
-        }
-    }
-
-    public class Mark {
-        public int start;
-        public int finish;
-        public String name;
-        public int channel;
-        public double red;
-        public double green;
-        public double blue;
-
-        public Mark(int channel, int start, int finish, String name,
-                    double red, double green, double blue) {
-            this.start = start;
-            this.finish = finish;
-            this.name = name;
-            this.channel = channel;
-            this.red = red;
-            this.green = green;
-            this.blue = blue;
         }
     }
 }
