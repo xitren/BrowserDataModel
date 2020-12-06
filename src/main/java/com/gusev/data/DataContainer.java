@@ -19,9 +19,29 @@ public abstract class DataContainer {
     }
 
     public static double reduce(double[] dst, DataContainer src, int start, int size) {
+        return reduce_pow(dst, src, start, size);
+//        double over = size / (double)dst.length;
+//        for (int i = 0; i < dst.length; i++) {
+//            dst[i] = src.get(start + (int)Math.round((double)i * over));
+//        }
+//        return over;
+    }
+
+    public static double reduce(double[] dst, DataContainer src) {
+        return reduce_pow(dst, src);
+//        double over = (double)src.length() / (double)dst.length;
+//        for(int i=0;i < dst.length;i++) {
+//            dst[i] = src.get((int)Math.round((double)i * over));
+//        }
+//        return over;
+    }
+
+    public static double reduce_pow(double[] dst, DataContainer src, int start, int size) {
         double over = size / (double)dst.length;
-        for (int i = 0; i < dst.length; i++) {
-            dst[i] = src.get(start + (int)Math.round((double)i * over));
+        for (int i = 1; i < dst.length; i+=2) {
+            int x2 = start + (int)Math.round((double)i * over);
+            int x1 = start + (int)Math.round((double)(i - 1) * over);
+            powerate(dst, src, i - 1, i, x1, x2);
         }
         return over;
     }
@@ -37,21 +57,21 @@ public abstract class DataContainer {
     }
 
     public static void powerate(double[] dst, DataContainer src, int i1, int i2, int x1, int x2) {
-        double min = Double.MAX_VALUE;
-        double max = Double.MIN_VALUE;
+        double st = src.get(x1);
+        double end = src.get(x2);
+        double min = st;
+        double max = st;
         for (int i = x1; i <= x2; i++) {
-            min = Math.min(src.get(i), min);
-            max = Math.max(src.get(i), max);
+            double ii = src.get(i);
+            min = Math.min(ii, min);
+            max = Math.max(ii, max);
         }
-        dst[i1] = max;
-        dst[i2] = min;
-    }
-
-    public static double reduce(double[] dst, DataContainer src) {
-        double over = (double)src.length() / (double)dst.length;
-        for(int i=0;i < dst.length;i++) {
-            dst[i] = src.get((int)Math.round((double)i * over));
+        if (end < st) {
+            dst[i1] = max;
+            dst[i2] = min;
+        } else {
+            dst[i1] = min;
+            dst[i2] = max;
         }
-        return over;
     }
 }
