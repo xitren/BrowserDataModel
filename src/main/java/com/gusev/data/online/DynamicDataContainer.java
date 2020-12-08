@@ -1,6 +1,7 @@
 package com.gusev.data.online;
 
 import com.gusev.data.DataContainer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -75,12 +76,30 @@ public class DynamicDataContainer extends DataContainer {
     }
 
     @Override
-    public void add(double[] data) {
+    public void add(@NotNull double[] data) {
         synchronized (this) {
             ins = null;
             dataArray.add(data);
             overall_size += data.length;
         }
+    }
+
+    @Override
+    public void add(@NotNull int[] data) {
+        double[] doubles = new double[data.length];
+        for(int i=0;i < data.length;i++) {
+            doubles[i] = data[i];
+        }
+        add(doubles);
+    }
+
+    @Override
+    public void add(@NotNull long[] data) {
+        double[] doubles = new double[data.length];
+        for(int i=0;i < data.length;i++) {
+            doubles[i] = data[i];
+        }
+        add(doubles);
     }
 
     @Override

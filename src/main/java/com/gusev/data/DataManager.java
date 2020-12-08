@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.gusev.data.offline.StaticDataContainer;
 import com.gusev.data.online.DynamicDataContainer;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.Iterator;
@@ -21,15 +22,27 @@ public class DataManager<T extends DataContainer> {
         }
     }
 
-    public DataManager(double[] ... data) {
+    public DataManager(@NotNull double[] ... data) {
         for (int i=0;i < data.length;i++) {
             dataLines.add(new ExtendedDataLine(new StaticDataContainer(data[i])));
         }
     }
 
-    public void setFilterGlobal(double[] data) {
+    public void setFilterGlobal(@NotNull double[] data) {
         for (int i=0;i < dataLines.size();i++) {
             dataLines.get(i).setFilter(new FIR(data));
+        }
+    }
+
+    public void addData(@NotNull double[][] data) {
+        for (int i=0;i < dataLines.size();i++) {
+            dataLines.get(i).add(data[i]);
+        }
+    }
+
+    public void addData(@NotNull long[][] data) {
+        for (int i=0;i < dataLines.size();i++) {
+            dataLines.get(i).add(data[i]);
         }
     }
 

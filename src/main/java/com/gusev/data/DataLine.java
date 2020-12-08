@@ -1,5 +1,7 @@
 package com.gusev.data;
 
+import org.jetbrains.annotations.NotNull;
+
 public class DataLine<T extends DataContainer> {
     protected final static int VIEW_PREP_SIZE = 100;
     public final static int OVERVIEW_SIZE = 2048;
@@ -17,7 +19,7 @@ public class DataLine<T extends DataContainer> {
     protected double discretisationView = 250;
     protected int activeView = OVERVIEW_SIZE;
 
-    public DataLine(T _data) {
+    public DataLine(@NotNull T _data) {
         dataArray = _data;
         calculateOverview();
         calculateView(0, dataArray.length());

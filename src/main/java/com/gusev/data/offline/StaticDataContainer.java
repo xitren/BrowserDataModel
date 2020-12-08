@@ -1,6 +1,7 @@
 package com.gusev.data.offline;
 
 import com.gusev.data.DataContainer;
+import org.jetbrains.annotations.NotNull;
 
 public class StaticDataContainer extends DataContainer {
     private double[] dataArray;
@@ -9,7 +10,7 @@ public class StaticDataContainer extends DataContainer {
         this.dataArray = new double[0];
     }
 
-    public StaticDataContainer(double[] dataArray) {
+    public StaticDataContainer(@NotNull double[] dataArray) {
         this.dataArray = dataArray;
     }
 
@@ -26,6 +27,24 @@ public class StaticDataContainer extends DataContainer {
     @Override
     public void add(double[] data) {
         this.dataArray = data;
+    }
+
+    @Override
+    public void add(@NotNull int[] data) {
+        double[] doubles = new double[data.length];
+        for(int i=0;i < data.length;i++) {
+            doubles[i] = data[i];
+        }
+        add(doubles);
+    }
+
+    @Override
+    public void add(@NotNull long[] data) {
+        double[] doubles = new double[data.length];
+        for(int i=0;i < data.length;i++) {
+            doubles[i] = data[i];
+        }
+        add(doubles);
     }
 
     @Override

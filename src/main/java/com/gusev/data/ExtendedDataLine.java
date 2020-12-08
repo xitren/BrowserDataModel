@@ -2,6 +2,7 @@ package com.gusev.data;
 
 import com.gusev.data.offline.StaticDataContainer;
 import edu.emory.mathcs.jtransforms.dct.DoubleDCT_1D;
+import org.jetbrains.annotations.NotNull;
 
 public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     protected final double[] dctView = new double[OVERVIEW_SIZE];
@@ -12,12 +13,12 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     protected DataContainer dataArrayFiltered;
     private Mode mode;
 
-    public ExtendedDataLine(T _data) {
+    public ExtendedDataLine(@NotNull T _data) {
         super(_data);
         mode = Mode.USUAL;
     }
 
-    public void add(double[] datum) {
+    public void add(@NotNull double[] datum) {
         if (dataArray instanceof StaticDataContainer)
             return;
         dataArray.add(datum);
@@ -25,6 +26,22 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
             dataArrayFiltered.add(filter.process(datum));
         }
         calculateOverview();
+    }
+
+    public void add(@NotNull int[] datum) {
+        double[] doubles = new double[datum.length];
+        for(int i=0;i < datum.length;i++) {
+            doubles[i] = datum[i];
+        }
+        add(doubles);
+    }
+
+    public void add(@NotNull long[] datum) {
+        double[] doubles = new double[datum.length];
+        for(int i=0;i < datum.length;i++) {
+            doubles[i] = datum[i];
+        }
+        add(doubles);
     }
 
     public enum Mode {
@@ -51,7 +68,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         return filter;
     }
 
-    public void setFilter(FIR filter) {
+    public void setFilter(@NotNull FIR filter) {
         if (filter == null)
             return;
         this.filter = filter;
