@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     protected final double[] dctView = new double[OVERVIEW_SIZE];
     protected final double[] rmsView = new double[OVERVIEW_SIZE];
-    protected final double[] filterDataViewPrep = new double[OVERVIEW_SIZE + FILTER_ORDER];
     protected int rmsWindow = 30;
     protected FIR filter = null;
     protected DataContainer dataArrayFiltered;
@@ -45,7 +44,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     }
 
     public enum Mode {
-        USUAL, FOURIER, FILTER, POWER
+        USUAL, FOURIER, FILTER, FILTERED_FOURIER, POWER
     }
 
     public void setMode(Mode def) {
@@ -77,6 +76,21 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         fill = this.filter.process(fill);
         dataArrayFiltered.add(fill);
         calculateView(view[0], view[1]);
+    }
+
+    protected void calculateFilteredFourierView() {
+        calculateReducedFilterView();
+        double multer = OVERVIEW_SIZE / ((double) (view[1] - view[0]));
+        DoubleDCT_1D dct = new DoubleDCT_1D(this.dataView.length);
+        System.arraycopy(dataView, 0, dctView, 0, dataView.length);
+        dct.forward(dctView, true);
+        dctView[0] = 0;
+        for (int i = 0; i < dctView.length; i++) {
+            dataView[i] = Math.abs(dctView[i]) / 1;
+            timeView[i] = ( ((double)i * discretisation)) / ((double) (view[1] - view[0]) * 2);
+            timeView[i] = timeView[i];
+        }
+        activeView = dctView.length / 2;
     }
 
     protected void calculateFourierView() {
@@ -140,6 +154,9 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         if (ss >= (OVERVIEW_SIZE)) {
             if (mode != null) {
                 switch (mode) {
+                    case FILTERED_FOURIER:
+                        calculateFilteredFourierView();
+                        break;
                     case FOURIER:
                         calculateFourierView();
                         break;
@@ -159,10 +176,15 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         } else {
             if (mode != null) {
                 switch (mode) {
+                    case FILTERED_FOURIER:
+                        calculateFilteredFourierView();
+                        break;
+                    case FOURIER:
+                        calculateFourierView();
+                        break;
                     case FILTER:
                         calculateSimpleFilterView();
                         break;
-                    case FOURIER:
                     case POWER:
                     case USUAL:
                     default:
