@@ -1,10 +1,15 @@
 package com.gusev.data;
 
 import com.gusev.data.offline.StaticDataContainer;
+import com.gusev.data.window.op.WindowDynamicParser;
 import edu.emory.mathcs.jtransforms.dct.DoubleDCT_1D;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
+    private final Set<WindowDynamicParser> parsers = new HashSet<>();
     protected final double[] dctView = new double[OVERVIEW_SIZE];
     protected final double[] rmsView = new double[OVERVIEW_SIZE];
     protected int rmsWindow = 30;
@@ -15,6 +20,18 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     public ExtendedDataLine(@NotNull T _data) {
         super(_data);
         mode = Mode.USUAL;
+    }
+
+    public void clearParsers() {
+        parsers.clear();
+    }
+
+    public void addParser(WindowDynamicParser pars) {
+        parsers.add(pars);
+    }
+
+    public void removeParser(WindowDynamicParser pars) {
+        parsers.remove(pars);
     }
 
     public void add(@NotNull double[] datum) {
@@ -88,7 +105,6 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         for (int i = 0; i < dctView.length; i++) {
             dataView[i] = Math.abs(dctView[i]) / 1;
             timeView[i] = ( ((double)i * discretisation)) / ((double) (view[1] - view[0]) * 2);
-            timeView[i] = timeView[i];
         }
         activeView = dctView.length / 2;
     }
@@ -103,7 +119,6 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         for (int i = 0; i < dctView.length; i++) {
             dataView[i] = Math.abs(dctView[i]) / 1;
             timeView[i] = ( ((double)i * discretisation)) / ((double) (view[1] - view[0]) * 2);
-            timeView[i] = timeView[i];
         }
         activeView = dctView.length / 2;
     }
