@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     private final Set<WindowDynamicParser> parsers = new HashSet<>();
-    private final Map<Mode, double[][]> modes = new HashMap<>();
+    private final Map<WindowSource, double[][]> modes = new HashMap<>();
     protected final double[][] filterView = new double[2][OVERVIEW_SIZE];
     protected final double[][] dctFilterView = new double[2][OVERVIEW_SIZE];
     protected final double[][] dctView = new double[2][OVERVIEW_SIZE];
@@ -102,7 +102,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     }
 
     protected void calculateFilteredFourierView() {
-        if (modes.containsKey(Mode.FILTERED_FOURIER))
+        if (modes.containsKey(WindowSource.FILTERED_FREQUENCIES))
             return;
         calculateReducedFilterView();
         double multer = OVERVIEW_SIZE / ((double) (view[1] - view[0]));
@@ -114,11 +114,11 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
             dctFilterView[0][i] = Math.abs(dctFilterView[0][i]) / 1;
             dctFilterView[1][i] = ( ((double)i * discretisation)) / ((double) (view[1] - view[0]) * 2);
         }
-        modes.put(Mode.FILTERED_FOURIER, dctFilterView);
+        modes.put(WindowSource.FILTERED_FREQUENCIES, dctFilterView);
     }
 
     protected void calculateFourierView() {
-        if (modes.containsKey(Mode.FOURIER))
+        if (modes.containsKey(WindowSource.FREQUENCIES))
             return;
         calculateReducedView();
         double multer = OVERVIEW_SIZE / ((double) (view[1] - view[0]));
@@ -130,11 +130,11 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
             dctView[0][i] = Math.abs(dctView[0][i]) / 1;
             dctView[1][i] = ( ((double)i * discretisation)) / ((double) (view[1] - view[0]) * 2);
         }
-        modes.put(Mode.FOURIER, dctView);
+        modes.put(WindowSource.FREQUENCIES, dctView);
     }
 
     protected void calculateReducedFilterView() {
-        if (modes.containsKey(Mode.FILTER))
+        if (modes.containsKey(WindowSource.FILTERED))
             return;
         if (filter == null) {
             calculateReducedView();
@@ -154,11 +154,11 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         for (int i = 0; i < filterView[1].length; i++) {
             filterView[1][i] = (view[0] + (i) / multer);
         }
-        modes.put(Mode.FILTER, filterView);
+        modes.put(WindowSource.FILTERED, filterView);
     }
 
     protected void calculateRMSView() {
-        if (modes.containsKey(Mode.POWER))
+        if (modes.containsKey(WindowSource.POW))
             return;
         calculateReducedView();
         activeView = OVERVIEW_SIZE;
@@ -179,7 +179,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         for (int i = 0; i < filterView[1].length; i++) {
             rmsView[1][i] = (view[0] + (i) / multer);
         }
-        modes.put(Mode.POWER, rmsView);
+        modes.put(WindowSource.POW, rmsView);
     }
 
     protected void calculateSimpleView(int start, int end) {
@@ -202,17 +202,17 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     }
 
     protected void calculateSimpleView() {
-        if (modes.containsKey(Mode.USUAL))
+        if (modes.containsKey(WindowSource.RAW))
             return;
         super.calculateSimpleView();
-        modes.put(Mode.USUAL, usualView);
+        modes.put(WindowSource.RAW, usualView);
     }
 
     protected void calculateReducedView() {
-        if (modes.containsKey(Mode.USUAL))
+        if (modes.containsKey(WindowSource.RAW))
             return;
         super.calculateReducedView();
-        modes.put(Mode.USUAL, usualView);
+        modes.put(WindowSource.RAW, usualView);
     }
 
     @Override
