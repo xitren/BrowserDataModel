@@ -4,9 +4,14 @@ import com.gusev.data.window.op.WindowSource;
 
 public abstract class WindowDynamicParser {
     protected final WindowSource typeOfSource;
+    protected int activeView;
 
     protected WindowDynamicParser(WindowSource typeOfSource) {
         this.typeOfSource = typeOfSource;
+    }
+
+    public WindowSource getTypeOfSource() {
+        return typeOfSource;
     }
 
     public void setData(double[] data) {

@@ -7,10 +7,8 @@ public class DataLine<T extends DataContainer> {
     public final static int OVERVIEW_SIZE = 2048;
     protected final static int FILTER_ORDER = 30;
     protected final T dataArray;
-    private final double[] dataOverview = new double[OVERVIEW_SIZE];
-    private final double[] timeOverview = new double[OVERVIEW_SIZE];
-    protected final double[] dataView = new double[OVERVIEW_SIZE];
-    protected final double[] timeView = new double[OVERVIEW_SIZE];
+    protected final double[][] overview = new double[2][OVERVIEW_SIZE];
+    protected final double[][] usualView = new double[2][OVERVIEW_SIZE];
     protected final double[] dataViewPrep = new double[OVERVIEW_SIZE + FILTER_ORDER];
     protected final int[] view = new int[2];
     private boolean overviewActual = false;
@@ -52,18 +50,18 @@ public class DataLine<T extends DataContainer> {
             size_d = OVERVIEW_SIZE;
         discretisationView = discretisation * multer;
         double timeMultiplicand = DataContainer.reduce(dataViewPrep, dataArray, start_d, view[1] - start_d);
-        System.arraycopy(dataViewPrep, dataViewPrep.length - OVERVIEW_SIZE, dataView, 0, OVERVIEW_SIZE);
-        for (int i = 0; i < timeView.length; i++) {
-            timeView[i] = (view[0] + (i) / multer) * timePeriodView;
+        System.arraycopy(dataViewPrep, dataViewPrep.length - OVERVIEW_SIZE, usualView[0], 0, OVERVIEW_SIZE);
+        for (int i = 0; i < usualView[1].length; i++) {
+            usualView[1][i] = (view[0] + (i) / multer) * timePeriodView;
         }
     }
 
     protected void calculateSimpleView() {
         discretisationView = discretisation;
         activeView = view[1] - view[0];
-        DataContainer.datacopy(dataArray, view[0], dataView, 0, view[1] - view[0]);
+        DataContainer.datacopy(dataArray, view[0], usualView[0], 0, view[1] - view[0]);
         for (int i = 0; i < (view[1] - view[0]); i++) {
-            timeView[i] = (view[0] + i) * timePeriodView;
+            usualView[1][i] = (view[0] + i) * timePeriodView;
         }
     }
 
@@ -79,14 +77,14 @@ public class DataLine<T extends DataContainer> {
 
     protected void calculateOverview() {
         if (dataArray.length() >= OVERVIEW_SIZE) {
-            double timeMultiplicand = DataContainer.reduce_pow(dataOverview, dataArray);
-            for (int i = 0; i < timeOverview.length; i++) {
-                timeOverview[i] = (i * timeMultiplicand) * timePeriod;
+            double timeMultiplicand = DataContainer.reduce_pow(overview[0], dataArray);
+            for (int i = 0; i < overview[1].length; i++) {
+                overview[1][i] = (i * timeMultiplicand) * timePeriod;
             }
         } else {
-            DataContainer.datacopy(dataArray, 0, dataOverview, 0, dataArray.length());
-            for (int i = 0; i < timeOverview.length; i++) {
-                timeOverview[i] = (i) * timePeriod;
+            DataContainer.datacopy(dataArray, 0, overview[0], 0, dataArray.length());
+            for (int i = 0; i < overview[1].length; i++) {
+                overview[1][i] = (i) * timePeriod;
             }
         }
         overviewActual = true;
@@ -105,19 +103,19 @@ public class DataLine<T extends DataContainer> {
     }
 
     public double[] getDataView(){
-        return dataView;
+        return usualView[0];
     }
 
     public double[] getTimeView(){
-        return timeView;
+        return usualView[1];
     }
 
     public double[] getDataOverview(){
-        return dataOverview;
+        return overview[0];
     }
 
     public double[] getTimeOverview() {
-        return timeOverview;
+        return overview[1];
     }
 
     public int getActiveView() {
