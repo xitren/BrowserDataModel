@@ -15,10 +15,13 @@ import java.util.List;
 public class DataManager<T extends DataContainer> {
     protected final List<ExtendedDataLine<T>> dataLines = new LinkedList();
     protected final List<Mark> marks = new LinkedList();
+    private Integer[] swapper = null;
 
     public DataManager(int n) {
+        swapper = new Integer[n];
         for (int i=0;i < n;i++) {
             dataLines.add(new ExtendedDataLine(new DynamicDataContainer()));
+            swapper[i] = i;
         }
     }
 
@@ -26,6 +29,15 @@ public class DataManager<T extends DataContainer> {
         for (int i=0;i < data.length;i++) {
             dataLines.add(new ExtendedDataLine(new StaticDataContainer(data[i])));
         }
+    }
+
+    public void setSwapper(Integer[] swapper) {
+        for (Integer sw : swapper) {
+            if (!((0 <= sw) && (sw < dataLines.size()))) {
+                throw new IndexOutOfBoundsException("Wrong index!");
+            }
+        }
+        this.swapper = swapper;
     }
 
     public void setFilterGlobal(@NotNull double[] data) {
@@ -106,32 +118,36 @@ public class DataManager<T extends DataContainer> {
         return dataLines.size();
     }
 
+    private ExtendedDataLine<T> getFromSwapper(int i){
+        return dataLines.get(swapper[i]);
+    }
+
     public double[] getRawDataLine(int i) {
-        return DataContainer.toArray(dataLines.get(i).getDataArray());
+        return DataContainer.toArray(getFromSwapper(i).getDataArray());
     }
 
     public double[] getDataLine(int i) {
-        return dataLines.get(i).getDataView();
+        return getFromSwapper(i).getDataView();
     }
 
     public double[] getTimeLine(int i) {
-        return dataLines.get(i).getTimeView();
+        return getFromSwapper(i).getTimeView();
     }
 
     public double[] getOverview(int i) {
-        return dataLines.get(i).getDataOverview();
+        return getFromSwapper(i).getDataOverview();
     }
 
     public int getDataContainerSize(int i) {
-        return dataLines.get(i).dataArray.length();
+        return getFromSwapper(i).dataArray.length();
     }
 
     public int getActiveView(int i) {
-        return dataLines.get(i).getActiveView();
+        return getFromSwapper(i).getActiveView();
     }
 
     public double[] getTimeOverview(int i) {
-        return dataLines.get(i).getTimeOverview();
+        return getFromSwapper(i).getTimeOverview();
     }
 
     protected void updateOverview() {
