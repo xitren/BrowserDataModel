@@ -191,7 +191,10 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
                 calculateFourierView();
                 break;
             case FILTER:
-                calculateSimpleFilterView();
+                if (this.filter != null)
+                    calculateSimpleFilterView();
+                else
+                    calculateSimpleView();
                 break;
             case POWER:
             case USUAL:
@@ -234,7 +237,10 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
                     calculateFourierView();
                     break;
                 case FILTER:
-                    calculateReducedFilterView();
+                    if (this.filter != null)
+                        calculateReducedFilterView();
+                    else
+                        calculateReducedView();
                     break;
                 case FILTERED_FOURIER:
                     calculateFilteredFourierView();
@@ -260,7 +266,10 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
                         calculateFourierView();
                         break;
                     case FILTERED:
-                        calculateReducedFilterView();
+                        if (this.filter != null)
+                            calculateReducedFilterView();
+                        else
+                            calculateReducedView();
                         break;
                     case FILTERED_FREQUENCIES:
                         calculateFilteredFourierView();

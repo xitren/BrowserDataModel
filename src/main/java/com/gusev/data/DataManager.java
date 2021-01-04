@@ -62,12 +62,12 @@ public class DataManager<T extends DataContainer> {
         marks.clear();
     }
 
-    public void addMark(int ch, int start, int finish, String name,
+    protected void addMark(int ch, int start, int finish, String name,
                         String color, String label_color) {
         marks.add(new Mark(ch, start, finish, name, color, label_color));
     }
 
-    public void addGlobalMark(int start, int finish, String name,
+    protected void addGlobalMark(int start, int finish, String name,
                               String color, String label_color) {
         marks.add(new Mark(-1, start, finish, name, color, label_color));
     }
@@ -136,6 +136,10 @@ public class DataManager<T extends DataContainer> {
 
     public double[] getOverview(int i) {
         return getFromSwapper(i).getDataOverview();
+    }
+
+    public ExtendedDataLine.Mode getMode(int i) {
+        return getFromSwapper(i).getMode();
     }
 
     public int getDataContainerSize(int i) {
