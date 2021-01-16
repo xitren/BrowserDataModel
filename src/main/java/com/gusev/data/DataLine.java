@@ -11,7 +11,7 @@ public class DataLine<T extends DataContainer> {
     protected final double[][] usualView = new double[2][OVERVIEW_SIZE];
     protected final double[] dataViewPrep = new double[OVERVIEW_SIZE + FILTER_ORDER];
     protected final int[] view = new int[2];
-    private boolean overviewActual = false;
+    protected boolean overviewActual = false;
     private boolean viewActual = false;
     protected double discretisation = 250;
     protected double discretisationView = 250;
@@ -21,6 +21,10 @@ public class DataLine<T extends DataContainer> {
         dataArray = _data;
         calculateOverview();
         calculateView(0, dataArray.length());
+    }
+
+    public boolean isOverviewActual() {
+        return overviewActual;
     }
 
     protected void checkView(int start, int end) {
@@ -73,7 +77,9 @@ public class DataLine<T extends DataContainer> {
         viewActual = true;
     }
 
-    protected void calculateOverview() {
+    public void calculateOverview() {
+        if (this.overviewActual == true)
+            return;
         if (dataArray.length() >= OVERVIEW_SIZE) {
             double timeMultiplicand = DataContainer.reduce_pow(overview[0], dataArray);
             for (int i = 0; i < overview[1].length; i++) {
@@ -85,7 +91,7 @@ public class DataLine<T extends DataContainer> {
                 overview[1][i] = (i);
             }
         }
-        overviewActual = true;
+        this.overviewActual = true;
     }
 
     public void setView(int start, int end) {
@@ -96,9 +102,7 @@ public class DataLine<T extends DataContainer> {
         this.discretisation = disc;
     }
 
-    public DataContainer getDataArray(){
-        return dataArray;
-    }
+    public double[] toArray() {return DataContainer.toArray(this.dataArray);}
 
     public double[] getDataView(){
         return usualView[0];

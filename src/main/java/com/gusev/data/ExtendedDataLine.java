@@ -47,7 +47,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         if (filter != null) {
             dataArrayFiltered.add(filter.process(datum));
         }
-        calculateOverview();
+        this.overviewActual = false;
     }
 
     public void add(@NotNull int[] datum) {
@@ -224,6 +224,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
             return;
         checkView(start, end);
         modes.clear();
+//        calculateOverview();
         int ss = (view[1] - view[0]);
         if (ss >= (OVERVIEW_SIZE)) {
             switch (mode) {

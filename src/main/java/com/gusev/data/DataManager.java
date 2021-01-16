@@ -93,7 +93,7 @@ public class DataManager<T extends DataContainer> {
         int i = 0;
         while (it.hasNext()) {
             ExtendedDataLine dlds = it.next();
-            data.data[i++] = DataContainer.toArray(dlds.getDataArray());
+            data.data[i++] = dlds.toArray();
         }
         Iterator<Mark> it2 = marks.iterator();
         i = 0;
@@ -123,7 +123,7 @@ public class DataManager<T extends DataContainer> {
     }
 
     public double[] getRawDataLine(int i) {
-        return DataContainer.toArray(getFromSwapper(i).getDataArray());
+        return getFromSwapper(i).toArray();
     }
 
     public double[] getDataLine(int i) {
@@ -156,7 +156,8 @@ public class DataManager<T extends DataContainer> {
 
     protected void updateOverview() {
         for (int i=0;i < dataLines.size();i++) {
-            dataLines.get(i).calculateOverview();
+            if (!dataLines.get(i).isOverviewActual())
+                dataLines.get(i).calculateOverview();
         }
     }
 
