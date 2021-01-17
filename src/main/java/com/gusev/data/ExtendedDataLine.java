@@ -13,14 +13,14 @@ import java.util.Set;
 
 public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     private final Set<WindowDynamicParser> parsers = new HashSet<>();
-    private final Map<WindowSource, double[][]> modes = new HashMap<>();
+    protected final Map<WindowSource, double[][]> modes = new HashMap<>();
     protected final double[][] filterView = new double[2][OVERVIEW_SIZE];
     protected final double[][] dctFilterView = new double[2][OVERVIEW_SIZE];
     protected final double[][] dctView = new double[2][OVERVIEW_SIZE];
     protected final double[][] rmsView = new double[2][OVERVIEW_SIZE];
     protected int rmsWindow = 30;
     protected FIR filter = null;
-    protected DataContainer dataArrayFiltered;
+    private DataContainer dataArrayFiltered;
     private Mode mode;
 
     public ExtendedDataLine(@NotNull T _data) {
@@ -45,7 +45,10 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
             return;
         dataArray.add(datum);
         if (filter != null) {
-            dataArrayFiltered.add(filter.process(datum));
+            double[] ff = new double[datum.length];
+            for (int i = 0;i < datum.length;i++)
+                ff[i] = filter.process(datum[i]);
+            dataArrayFiltered.add(ff);
         }
         this.overviewActual = false;
     }

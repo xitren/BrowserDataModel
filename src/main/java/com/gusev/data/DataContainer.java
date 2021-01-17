@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class DataContainer {
     public abstract int length();
     public abstract double get(int i);
+    public abstract double[] lastblock();
     public abstract void add(@NotNull double[] data);
     public abstract void add(@NotNull int[] data);
     public abstract void add(@NotNull long[] data);

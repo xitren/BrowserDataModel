@@ -76,6 +76,16 @@ public class DynamicDataContainer extends DataContainer {
     }
 
     @Override
+    public double[] lastblock() {
+        synchronized (this) {
+            if (dataArray.size() > 0)
+                return dataArray.get(dataArray.size() - 1);
+            else
+                return null;
+        }
+    }
+
+    @Override
     public void add(@NotNull double[] data) {
         synchronized (this) {
             ins = null;

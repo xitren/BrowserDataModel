@@ -17,6 +17,14 @@ public class DataManager<T extends DataContainer> {
     protected final List<Mark> marks = new LinkedList();
     private Integer[] swapper = null;
 
+    public DataManager(int n, ExtendedDataLine[] edl) {
+        swapper = new Integer[n];
+        for (int i=0;i < n;i++) {
+            dataLines.add(edl[i]);
+            swapper[i] = i;
+        }
+    }
+
     public DataManager(int n) {
         swapper = new Integer[n];
         for (int i=0;i < n;i++) {

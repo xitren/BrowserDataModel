@@ -25,6 +25,11 @@ public class StaticDataContainer extends DataContainer {
     }
 
     @Override
+    public double[] lastblock() {
+        return dataArray;
+    }
+
+    @Override
     public void add(double[] data) {
         this.dataArray = data;
     }
