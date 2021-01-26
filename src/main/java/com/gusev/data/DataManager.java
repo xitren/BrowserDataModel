@@ -169,6 +169,12 @@ public class DataManager<T extends DataContainer> {
         }
     }
 
+    protected void unsetOverview() {
+        for (int i=0;i < dataLines.size();i++) {
+            dataLines.get(i).overviewActual = false;
+        }
+    }
+
     public void cut(int start, int size) {
         for (int i=0;i < dataLines.size();i++) {
             dataLines.get(i).cut(start, size);

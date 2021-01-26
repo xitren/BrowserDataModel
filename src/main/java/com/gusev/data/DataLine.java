@@ -98,6 +98,10 @@ public class DataLine<T extends DataContainer> {
         calculateView(start, end);
     }
 
+    public void setMaxView() {
+        calculateView(0, dataArray.length());
+    }
+
     public void setDiscretisation(double disc) {
         this.discretisation = disc;
     }
