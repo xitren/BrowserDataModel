@@ -1,7 +1,15 @@
 package com.gusev.data;
 
 public class DataModelJson {
+    public String person_name = "";
+    public String person_gender = "";
+    public String person_age = "";
+    public String person_details = "";
+    public String person_date = "";
+    public String signal_type = "";
+    public int discretization = 250;
     public double[][] data;
+    public String[] data_label;
     public int[] start;
     public int[] finish;
     public String[] name;

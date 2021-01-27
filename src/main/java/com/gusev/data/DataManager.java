@@ -8,6 +8,8 @@ import com.gusev.data.online.DynamicDataContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,12 +18,18 @@ public class DataManager<T extends DataContainer> {
     protected final List<ExtendedDataLine<T>> dataLines = new LinkedList();
     protected final List<Mark> marks = new LinkedList();
     private Integer[] swapper = null;
+    private String personDate;
+    private int discretization = 250;
+    private String[] dataLabel;
 
     public DataManager(int n, ExtendedDataLine[] edl) {
+        personDate = LocalDateTime.now().toString();
         swapper = new Integer[n];
+        dataLabel = new String[n];
         for (int i=0;i < n;i++) {
             dataLines.add(edl[i]);
             swapper[i] = i;
+            dataLabel[i] = "";
         }
     }
 
@@ -122,6 +130,54 @@ public class DataManager<T extends DataContainer> {
         outputStreamWriter.close();
     }
 
+    public void saveToTXT(String filename) throws IOException {
+        DataModelJson data = new DataModelJson(dataLines.size(), marks.size());
+        Iterator<ExtendedDataLine<T>> it = dataLines.iterator();
+        int i = 0;
+        int length = 0;
+        while (it.hasNext()) {
+            ExtendedDataLine dlds = it.next();
+            length = data.data[i].length;
+            data.data[i++] = dlds.toArray();
+        }
+        Iterator<Mark> it2 = marks.iterator();
+        i = 0;
+        while (it2.hasNext()) {
+            Mark dlds = it2.next();
+            data.start[i] = dlds.start;
+            data.finish[i] = dlds.finish;
+            data.name[i] = dlds.name;
+            data.channel[i] = dlds.channel;
+            data.color[i] = dlds.color;
+            data.label_color[i] = dlds.label_color;
+            i++;
+        }
+        OutputStream outputStream = new FileOutputStream(filename);
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+        outputStreamWriter.write(String.format("%s\t<Дата проведения исследования: день, месяц, год>\n", data.person_date));
+        outputStreamWriter.write(String.format("%d\t<Общее количество каналов>\n", dataLines.size()));
+        outputStreamWriter.write(String.format("%d\t<Частота дискретизации, Гц>\n", data.discretization));
+        outputStreamWriter.write(String.format("1\t<Количество групп физиологических сигналов>\n"));
+        outputStreamWriter.write(String.format("%d\t<Количество сигналов>\n", dataLines.size()));
+        outputStreamWriter.write(String.format("\t<Идентификатор исследования>\n"));
+        outputStreamWriter.write(String.format("1\t<Количество фрагментов записи>\n"));
+
+        //Фрагмент
+        outputStreamWriter.write(String.format("\t<Время начала фрагмента>\n", data.person_name));
+        outputStreamWriter.write(String.format("%d\t<Продолжительность фрагмента в отсчетах, отсчетов>\n", length));
+        for (int k = 0;k < data.data_label.length;k++) {
+            outputStreamWriter.write(data.data_label[k] + "\t");
+        }
+        outputStreamWriter.write("\n");
+        for (int ki = 0;ki < data.data.length;ki++) {
+            for (int k = 0;k < data.data[ki].length;k++) {
+                outputStreamWriter.write("" + data.data[ki][k] + "\t");
+            }
+            outputStreamWriter.write("\n");
+        }
+        outputStreamWriter.close();
+    }
+
     public int size() {
         return dataLines.size();
     }
@@ -179,5 +235,29 @@ public class DataManager<T extends DataContainer> {
         for (int i=0;i < dataLines.size();i++) {
             dataLines.get(i).cut(start, size);
         }
+    }
+
+    public int getDiscretization() {
+        return discretization;
+    }
+
+    public void setDiscretization(int discretization) {
+        this.discretization = discretization;
+    }
+
+    public String[] getDataLabel() {
+        return dataLabel;
+    }
+
+    public void setDataLabel(String[] dataLabel) {
+        this.dataLabel = dataLabel;
+    }
+
+    public String getPersonDate() {
+        return personDate;
+    }
+
+    public void setPersonDate(String personDate) {
+        this.personDate = personDate;
     }
 }
