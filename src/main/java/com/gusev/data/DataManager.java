@@ -194,6 +194,10 @@ public class DataManager<T extends DataContainer> {
         return getFromSwapper(i).getDataView();
     }
 
+    public int getLineCount() {
+        return dataLines.size();
+    }
+
     public double[] getTimeLine(int i) {
         return getFromSwapper(i).getTimeView();
     }
