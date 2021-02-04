@@ -56,6 +56,10 @@ public class DataManager<T extends DataContainer> {
         this.swapper = swapper;
     }
 
+    public Integer[] getSwapper() {
+        return swapper;
+    }
+
     public void setFilterGlobal(@NotNull double[] data) {
         for (int i=0;i < dataLines.size();i++) {
             dataLines.get(i).setFilter(new FIR(data));
@@ -183,7 +187,12 @@ public class DataManager<T extends DataContainer> {
     }
 
     private ExtendedDataLine<T> getFromSwapper(int i){
-        return dataLines.get(swapper[i]);
+        try {
+            return dataLines.get(swapper[i]);
+        } catch (IndexOutOfBoundsException ex) {
+            System.out.println(ex);
+        }
+        return null;
     }
 
     public double[] getRawDataLine(int i) {
