@@ -48,11 +48,11 @@ public class DataManager<T extends DataContainer> {
     }
 
     public void setSwapper(Integer[] swapper) {
-        for (Integer sw : swapper) {
-            if (!((0 <= sw) && (sw < dataLines.size()))) {
-                throw new IndexOutOfBoundsException("Wrong index!");
-            }
-        }
+//        for (Integer sw : swapper) {
+//            if (!((0 <= sw) && (sw < dataLines.size()))) {
+//                throw new IndexOutOfBoundsException("Wrong index!");
+//            }
+//        }
         this.swapper = swapper;
     }
 
