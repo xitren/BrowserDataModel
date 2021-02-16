@@ -9,10 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class DataManager<T extends DataContainer> {
     protected final List<ExtendedDataLine<T>> dataLines = new LinkedList();
@@ -47,12 +44,12 @@ public class DataManager<T extends DataContainer> {
         }
     }
 
-    public void setSwapper(Integer[] swapper) {
-//        for (Integer sw : swapper) {
-//            if (!((0 <= sw) && (sw < dataLines.size()))) {
-//                throw new IndexOutOfBoundsException("Wrong index!");
-//            }
-//        }
+    public void setSwapper(@NotNull Integer[] swapper) {
+        for (Integer sw : swapper) {
+            if (!((0 <= sw) && (sw < dataLines.size()))) {
+                throw new IndexOutOfBoundsException("Wrong index!");
+            }
+        }
         this.swapper = swapper;
     }
 
@@ -199,32 +196,32 @@ public class DataManager<T extends DataContainer> {
         return getFromSwapper(i).toArray();
     }
 
-    public double[] getDataLine(int i) {
-        return getFromSwapper(i).getDataView();
+    public double[] getDataLine(int i, ExtendedDataLine.Mode mode) {
+        return getFromSwapper(i).getDataView(mode);
     }
 
     public int getLineCount() {
         return dataLines.size();
     }
 
-    public double[] getTimeLine(int i) {
-        return getFromSwapper(i).getTimeView();
+    public double[] getTimeLine(int i, ExtendedDataLine.Mode mode) {
+        return getFromSwapper(i).getTimeView(mode);
     }
 
     public double[] getOverview(int i) {
         return getFromSwapper(i).getDataOverview();
     }
 
-    public ExtendedDataLine.Mode getMode(int i) {
-        return getFromSwapper(i).getMode();
+    public Set<ExtendedDataLine.Mode> getMode(int i) {
+        return getFromSwapper(i).getModes();
     }
 
     public int getDataContainerSize(int i) {
         return getFromSwapper(i).dataArray.length();
     }
 
-    public int getActiveView(int i) {
-        return getFromSwapper(i).getActiveView();
+    public int getActiveView(int i, ExtendedDataLine.Mode mode) {
+        return getFromSwapper(i).getActiveView(mode);
     }
 
     public double[] getTimeOverview(int i) {
