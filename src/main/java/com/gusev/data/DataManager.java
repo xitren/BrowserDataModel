@@ -63,14 +63,26 @@ public class DataManager<T extends DataContainer> {
         }
     }
 
+    public void addDataMap(@NotNull double[][] data, int[] src, int[] map) {
+        for (int i=0;i < map.length && i < src.length;i++) {
+            dataLines.get(map[i]).add(data[src[i]]);
+        }
+    }
+
+    public void addDataMap(@NotNull long[][] data, int[] src, int[] map) {
+        for (int i=0;i < map.length && i < src.length;i++) {
+            dataLines.get(map[i]).add(data[src[i]]);
+        }
+    }
+
     public void addData(@NotNull double[][] data) {
-        for (int i=0;i < dataLines.size();i++) {
+        for (int i=0;i < dataLines.size() && i < data.length;i++) {
             dataLines.get(i).add(data[i]);
         }
     }
 
     public void addData(@NotNull long[][] data) {
-        for (int i=0;i < dataLines.size();i++) {
+        for (int i=0;i < dataLines.size() && i < data.length;i++) {
             dataLines.get(i).add(data[i]);
         }
     }
