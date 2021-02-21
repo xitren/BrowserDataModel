@@ -114,6 +114,10 @@ public class DataManager<T extends DataContainer> {
             marks.add(new Mark(data.channel[i], data.start[i], data.finish[i], data.name[i],
                     data.color[i], data.label_color[i]));
         }
+        swapper = new Integer[dataLines.size()];
+        for (int i=0;i < dataLines.size();i++) {
+            swapper[i] = i;
+        }
     }
 
     public void saveToFile(String filename) throws IOException {
