@@ -110,6 +110,7 @@ public class DataManager<T extends DataContainer> {
         for (int i=0;i < data.data.length;i++) {
             dataLines.add(new ExtendedDataLine(new StaticDataContainer(data.data[i])));
         }
+        dataLabel = data.data_label;
         for (int i=0;i < data.name.length;i++) {
             marks.add(new Mark(data.channel[i], data.start[i], data.finish[i], data.name[i],
                     data.color[i], data.label_color[i]));
@@ -127,6 +128,9 @@ public class DataManager<T extends DataContainer> {
         while (it.hasNext()) {
             ExtendedDataLine dlds = it.next();
             data.data[i++] = dlds.toArray();
+        }
+        for (i = 0;i < getDataLabel().length;i++) {
+            data.data_label[i] = getDataLabel()[i];
         }
         Iterator<Mark> it2 = marks.iterator();
         i = 0;

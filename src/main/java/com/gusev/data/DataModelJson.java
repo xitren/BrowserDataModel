@@ -21,6 +21,7 @@ public class DataModelJson {
 
     public DataModelJson(int lines, int marks){
         this.data = new double[lines][];
+        this.data_label = new String[lines];
         this.start = new int[marks];
         this.finish = new int[marks];
         this.name = new String[marks];
