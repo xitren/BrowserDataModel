@@ -14,6 +14,7 @@ import java.util.*;
 public class DataManager<T extends DataContainer> extends Observable {
     protected final List<ExtendedDataLine<T>> dataLines = new LinkedList();
     protected final List<Mark> marks = new LinkedList();
+    protected ExtendedDataLine.Mode[] modes;
     private Integer[] swapper = null;
     private String personDate;
     private double discretisation = 250;
@@ -23,16 +24,18 @@ public class DataManager<T extends DataContainer> extends Observable {
     private boolean needUpdateView = true;
     private boolean needUpdateMarks = true;
     private boolean stopped = false;
+    private boolean started = false;
     private boolean overviewSuppressed = false;
     private int[] start_end = new int[2];
-    protected ExtendedDataLine.Mode[] modes;
-    private Thread updater = new Thread(()->{
+    private final Thread updater = new Thread(()->{
         while (!stopped) {
+            started = true;
             if (needUpdateOverview && !overviewSuppressed) {
                 synchronized (this) {
                     unsetOverview();
                     updateOverview();
                     needUpdateOverview = false;
+                    System.out.println("Updated Overview");
                 }
                 setChanged();
                 notifyObservers(Action.OverviewUpdated);
@@ -41,17 +44,23 @@ public class DataManager<T extends DataContainer> extends Observable {
                 synchronized (this) {
                     updateView();
                     needUpdateView = false;
+                    System.out.println("Updated View");
                 }
                 setChanged();
                 notifyObservers(Action.ViewUpdated);
             }
             if (needUpdateMarks) {
                 synchronized (this) {
-//                    updateOverview();
                     needUpdateMarks = false;
+                    System.out.println("Updated Marks");
                 }
                 setChanged();
                 notifyObservers(Action.MarksUpdated);
+            }
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     });
@@ -75,6 +84,10 @@ public class DataManager<T extends DataContainer> extends Observable {
             swapper[i] = i;
         }
         updater.start();
+//        while (!started) {
+//            System.out.println("o");
+//            started = false;
+//        }
     }
 
     public DataManager(@NotNull double[] ... data) {
@@ -175,6 +188,9 @@ public class DataManager<T extends DataContainer> extends Observable {
     }
 
     public void addData(@NotNull long[][] data) {
+//        while (!started) {
+//            System.out.println("o");
+//        }
         synchronized (this) {
             for (int i=0;i < dataLines.size() && i < data.length;i++) {
                 dataLines.get(i).add(data[i]);
