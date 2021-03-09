@@ -297,6 +297,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
             double[][] r = modes.get(wdp.getTypeOfSource());
             wdp.setData(r[0], r[1]);
         }
+        viewActual = true;
     }
 
     protected void calculateSimpleFilterView() {

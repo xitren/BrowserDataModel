@@ -25,8 +25,10 @@ public class StaticDataContainer extends DataContainer {
     }
 
     @Override
-    public double[] lastblock() {
-        return dataArray;
+    public double[] lastblock(int size) {
+        double[] doubles = new double[size];
+        System.arraycopy(dataArray, dataArray.length - size, doubles, 0, size);
+        return doubles;
     }
 
     @Override

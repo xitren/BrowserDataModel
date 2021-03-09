@@ -11,13 +11,50 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class DataManager<T extends DataContainer> {
+public class DataManager<T extends DataContainer> extends Observable {
     protected final List<ExtendedDataLine<T>> dataLines = new LinkedList();
     protected final List<Mark> marks = new LinkedList();
     private Integer[] swapper = null;
     private String personDate;
-    private int discretization = 250;
+    private double discretisation = 250;
+    private double timePeriod = 0.004;
     private String[] dataLabel;
+    private boolean needUpdateOverview = true;
+    private boolean needUpdateView = true;
+    private boolean needUpdateMarks = true;
+    private boolean stopped = false;
+    private boolean overviewSuppressed = false;
+    private int[] start_end = new int[2];
+    protected ExtendedDataLine.Mode[] modes;
+    private Thread updater = new Thread(()->{
+        while (!stopped) {
+            if (needUpdateOverview && !overviewSuppressed) {
+                synchronized (this) {
+                    unsetOverview();
+                    updateOverview();
+                    needUpdateOverview = false;
+                }
+                setChanged();
+                notifyObservers(Action.OverviewUpdated);
+            }
+            if (needUpdateView) {
+                synchronized (this) {
+                    updateView();
+                    needUpdateView = false;
+                }
+                setChanged();
+                notifyObservers(Action.ViewUpdated);
+            }
+            if (needUpdateMarks) {
+                synchronized (this) {
+//                    updateOverview();
+                    needUpdateMarks = false;
+                }
+                setChanged();
+                notifyObservers(Action.MarksUpdated);
+            }
+        }
+    });
 
     public DataManager(int n, ExtendedDataLine[] edl) {
         personDate = LocalDateTime.now().toString();
@@ -28,6 +65,7 @@ public class DataManager<T extends DataContainer> {
             swapper[i] = i;
             dataLabel[i] = "";
         }
+        updater.start();
     }
 
     public DataManager(int n) {
@@ -36,69 +74,14 @@ public class DataManager<T extends DataContainer> {
             dataLines.add(new ExtendedDataLine(new DynamicDataContainer()));
             swapper[i] = i;
         }
+        updater.start();
     }
 
     public DataManager(@NotNull double[] ... data) {
         for (int i=0;i < data.length;i++) {
             dataLines.add(new ExtendedDataLine(new StaticDataContainer(data[i])));
         }
-    }
-
-    public void setSwapper(@NotNull Integer[] swapper) {
-        for (Integer sw : swapper) {
-            if (!((0 <= sw) && (sw < dataLines.size()))) {
-                throw new IndexOutOfBoundsException("Wrong index!");
-            }
-        }
-        this.swapper = swapper;
-    }
-
-    public Integer[] getSwapper() {
-        return swapper;
-    }
-
-    public void setFilterGlobal(@NotNull double[] data) {
-        for (int i=0;i < dataLines.size();i++) {
-            dataLines.get(i).setFilter(new FIR(data));
-        }
-    }
-
-    public void addDataMap(@NotNull double[][] data, int[] src, int[] map) {
-        for (int i=0;i < map.length && i < src.length;i++) {
-            dataLines.get(map[i]).add(data[src[i]]);
-        }
-    }
-
-    public void addDataMap(@NotNull long[][] data, int[] src, int[] map) {
-        for (int i=0;i < map.length && i < src.length;i++) {
-            dataLines.get(map[i]).add(data[src[i]]);
-        }
-    }
-
-    public void addData(@NotNull double[][] data) {
-        for (int i=0;i < dataLines.size() && i < data.length;i++) {
-            dataLines.get(i).add(data[i]);
-        }
-    }
-
-    public void addData(@NotNull long[][] data) {
-        for (int i=0;i < dataLines.size() && i < data.length;i++) {
-            dataLines.get(i).add(data[i]);
-        }
-    }
-
-    public void clearMarks() {
-        marks.clear();
-    }
-
-    protected void addMark(int ch, int start, int finish, String name,
-                        String color, String label_color) {
-        marks.add(new Mark(ch, start, finish, name, color, label_color));
-    }
-
-    protected void addGlobalMark(int start, int finish, String name,
-                              String color, String label_color) {
-        marks.add(new Mark(-1, start, finish, name, color, label_color));
+        updater.start();
     }
 
     public DataManager(String filename) throws IOException {
@@ -118,6 +101,108 @@ public class DataManager<T extends DataContainer> {
         swapper = new Integer[dataLines.size()];
         for (int i=0;i < dataLines.size();i++) {
             swapper[i] = i;
+        }
+        updater.start();
+    }
+
+    @Override
+    protected void finalize() {
+        stopped = true;
+    }
+
+    public void stop() {
+        stopped = true;
+    }
+
+    public boolean isOverviewSuppressed() {
+        return overviewSuppressed;
+    }
+
+    public void setOverviewSuppressed(boolean overviewSuppressed) {
+        this.overviewSuppressed = overviewSuppressed;
+    }
+
+    public void setSwapper(@NotNull Integer[] swapper) {
+        synchronized (this) {
+            for (Integer sw : swapper) {
+                if (!((0 <= sw) && (sw < dataLines.size()))) {
+                    throw new IndexOutOfBoundsException("Wrong index!");
+                }
+            }
+            this.swapper = swapper;
+            needUpdateView = true;
+        }
+    }
+
+    public Integer[] getSwapper() {
+        return swapper;
+    }
+
+    public void setFilterGlobal(@NotNull double[] data) {
+        synchronized (this) {
+            for (int i=0;i < dataLines.size();i++) {
+                dataLines.get(i).setFilter(new FIR(data));
+            }
+            needUpdateView = true;
+        }
+    }
+
+    public void addDataMap(@NotNull double[][] data, int[] src, int[] map) {
+        synchronized (this) {
+            for (int i=0;i < map.length && i < src.length;i++) {
+                dataLines.get(map[i]).add(data[src[i]]);
+            }
+            needUpdateOverview = true;
+        }
+    }
+
+    public void addDataMap(@NotNull long[][] data, int[] src, int[] map) {
+        synchronized (this) {
+            for (int i=0;i < map.length && i < src.length;i++) {
+                dataLines.get(map[i]).add(data[src[i]]);
+            }
+            needUpdateOverview = true;
+        }
+    }
+
+    public void addData(@NotNull double[][] data) {
+        synchronized (this) {
+            for (int i=0;i < dataLines.size() && i < data.length;i++) {
+                dataLines.get(i).add(data[i]);
+            }
+            needUpdateOverview = true;
+        }
+    }
+
+    public void addData(@NotNull long[][] data) {
+        synchronized (this) {
+            for (int i=0;i < dataLines.size() && i < data.length;i++) {
+                dataLines.get(i).add(data[i]);
+            }
+            needUpdateOverview = true;
+        }
+    }
+
+    public void clearMarks() {
+        synchronized (this) {
+            marks.clear();
+            needUpdateMarks = true;
+        }
+    }
+
+    protected void addMark(int ch, int start, int finish, String name,
+                        String color, String label_color) {
+        synchronized (this) {
+            marks.add(new Mark(ch, start, finish, name, color, label_color));
+            needUpdateMarks = true;
+        }
+    }
+
+    protected void addGlobalMark(int start, int finish, String name,
+                              String color, String label_color) {
+        synchronized (this) {
+            marks.add(new Mark(-1, start, finish, name, color, label_color));
+            needUpdateMarks = true;
         }
     }
 
@@ -262,17 +347,45 @@ public class DataManager<T extends DataContainer> {
     }
 
     public void cut(int start, int size) {
-        for (int i=0;i < dataLines.size();i++) {
-            dataLines.get(i).cut(start, size);
+        synchronized (this) {
+            for (int i = 0; i < dataLines.size(); i++) {
+                dataLines.get(i).cut(start, size);
+            }
+            needUpdateOverview = true;
+            needUpdateView = true;
+            needUpdateMarks = true;
         }
     }
 
-    public int getDiscretization() {
-        return discretization;
+    public int[] getLastView() {
+        return start_end;
+    }
+
+    private void updateView() {
+        for (int i = 0; i < getSwapper().length; i++) {
+            ExtendedDataLine dl = dataLines.get(getSwapper()[i]);
+            dl.clearModes();
+            for (ExtendedDataLine.Mode em : modes) {
+                dl.addMode(em);
+            }
+            dl.setView(start_end[0], start_end[1]);
+        }
+    }
+
+    protected void setView(int start, int end) {
+        synchronized (this) {
+            start_end[0] = start;
+            start_end[1] = end;
+            needUpdateView = true;
+        }
+    }
+
+    public double getDiscretization() {
+        return discretisation;
     }
 
     public void setDiscretization(int discretization) {
-        this.discretization = discretization;
+        this.discretisation = discretization;
     }
 
     public String[] getDataLabel() {
@@ -289,5 +402,34 @@ public class DataManager<T extends DataContainer> {
 
     public void setPersonDate(String personDate) {
         this.personDate = personDate;
+    }
+
+    public double getTimePeriod() {
+        return timePeriod;
+    }
+
+    public void setTimePeriod(double timePeriod) {
+        this.timePeriod = timePeriod;
+        this.discretisation = 1 / timePeriod;
+    }
+
+    public double getDiscretisation() {
+        return discretisation;
+    }
+
+    public void setDiscretisation(double discretisation) {
+        this.timePeriod = 1 / discretisation;
+        this.discretisation = discretisation;
+    }
+
+    public void setMode(int i, ExtendedDataLine.Mode def) {
+        synchronized (this) {
+            modes[i] = def;
+            needUpdateView = true;
+        }
+    }
+
+    public enum Action {
+        OverviewUpdated, ViewUpdated, MarksUpdated
     }
 }

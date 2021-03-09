@@ -12,7 +12,7 @@ public class DataLine<T extends DataContainer> {
     protected final double[] dataViewPrep = new double[OVERVIEW_SIZE + FILTER_ORDER];
     protected final int[] view = new int[2];
     protected boolean overviewActual = false;
-    private boolean viewActual = false;
+    protected boolean viewActual = false;
     protected double discretisation = 250;
     protected double discretisationView = 250;
     protected int activeView = OVERVIEW_SIZE;
@@ -98,8 +98,8 @@ public class DataLine<T extends DataContainer> {
         calculateView(start, end);
     }
 
-    public void setMaxView() {
-        calculateView(0, dataArray.length());
+    public int getMaxView() {
+        return dataArray.length();
     }
 
     public void setDiscretisation(double disc) {
@@ -130,5 +130,7 @@ public class DataLine<T extends DataContainer> {
 
     public void cut(int start, int size) {
         dataArray.cut(start, size);
+        calculateView(0, size);
+        this.overviewActual = false;
     }
 }

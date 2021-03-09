@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class DataContainer {
     public abstract int length();
     public abstract double get(int i);
-    public abstract double[] lastblock();
+    public abstract double[] lastblock(int size);
     public abstract void add(@NotNull double[] data);
     public abstract void add(@NotNull int[] data);
     public abstract void add(@NotNull long[] data);
@@ -26,20 +26,10 @@ public abstract class DataContainer {
 
     public static double reduce(@NotNull double[] dst, @NotNull DataContainer src, int start, int size) {
         return reduce_pow(dst, src, start, size);
-//        double over = size / (double)dst.length;
-//        for (int i = 0; i < dst.length; i++) {
-//            dst[i] = src.get(start + (int)Math.round((double)i * over));
-//        }
-//        return over;
     }
 
     public static double reduce(@NotNull double[] dst, @NotNull DataContainer src) {
         return reduce_pow(dst, src);
-//        double over = (double)src.length() / (double)dst.length;
-//        for(int i=0;i < dst.length;i++) {
-//            dst[i] = src.get((int)Math.round((double)i * over));
-//        }
-//        return over;
     }
 
     public static double reduce_pow(@NotNull double[] dst, DataContainer src, int start, int size) {

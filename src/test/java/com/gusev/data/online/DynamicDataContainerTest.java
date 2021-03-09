@@ -28,4 +28,22 @@ public class DynamicDataContainerTest {
         }
         assertArrayEquals(view, view2);
     }
+
+    private final int SIZE = 32;
+
+    @Test
+    public void getLastDataArray() {
+        DynamicDataContainer ddc = new DynamicDataContainer();
+        double[] view = new double[SIZE];
+        double[] view2 = new double[SIZE];
+        for (int j = 0;j < view.length;j++) {
+            view[j] = j + 1;
+            view2[j] = j + 1 + SIZE;
+        }
+        ddc.add(view);
+        ddc.add(view2);
+        double[] last = ddc.lastblock(40);
+        double[] last2 = ddc.lastblock(4);
+        System.out.println();
+    }
 }
