@@ -76,6 +76,25 @@ public class DynamicDataContainer extends DataContainer {
     }
 
     @Override
+    public void lastblock(double[] doubles, int size) {
+        synchronized (this) {
+            if (size > this.length()) {
+
+            }
+            if (dataArray.size() > 0) {
+                int i = dataArray.size() - 1;
+                while (size > 0 && i > 0) {
+                    double[] iter = dataArray.get(i--);
+                    int k = iter.length - 1;
+                    while (k >= 0 && size > 0) {
+                        doubles[--size] = iter[k--];
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public double[] lastblock(int size) {
         synchronized (this) {
             if (size > this.length()) {

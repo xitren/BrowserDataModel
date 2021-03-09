@@ -22,10 +22,19 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     protected int rmsWindow = 30;
     protected FIR filter = null;
     private DataContainer dataArrayFiltered;
+    private boolean online;
 
     public ExtendedDataLine(@NotNull T _data) {
         super(_data);
         mode.add(Mode.USUAL);
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
     }
 
     public void clearParsers() {
@@ -220,14 +229,26 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     protected void calculateSimpleView() {
         if (modes.containsKey(WindowSource.RAW))
             return;
-        super.calculateSimpleView();
+        if (online) {
+            view[1] = getMaxView();
+            view[0] = view[1] - OVERVIEW_SIZE;
+            super.calculateOnlineView();
+        } else {
+            super.calculateSimpleView();
+        }
         modes.put(WindowSource.RAW, usualView);
     }
 
     protected void calculateReducedView() {
         if (modes.containsKey(WindowSource.RAW))
             return;
-        super.calculateReducedView();
+        if (online) {
+            view[1] = getMaxView();
+            view[0] = view[1] - OVERVIEW_SIZE;
+            super.calculateOnlineView();
+        } else {
+            super.calculateReducedView();
+        }
         modes.put(WindowSource.RAW, usualView);
     }
 

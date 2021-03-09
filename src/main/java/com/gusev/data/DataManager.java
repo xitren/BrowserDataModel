@@ -24,18 +24,15 @@ public class DataManager<T extends DataContainer> extends Observable {
     private boolean needUpdateView = true;
     private boolean needUpdateMarks = true;
     private boolean stopped = false;
-    private boolean started = false;
     private boolean overviewSuppressed = false;
     private int[] start_end = new int[2];
     private final Thread updater = new Thread(()->{
         while (!stopped) {
-            started = true;
             if (needUpdateOverview && !overviewSuppressed) {
                 synchronized (this) {
                     unsetOverview();
                     updateOverview();
                     needUpdateOverview = false;
-                    System.out.println("Updated Overview");
                 }
                 setChanged();
                 notifyObservers(Action.OverviewUpdated);
@@ -44,7 +41,6 @@ public class DataManager<T extends DataContainer> extends Observable {
                 synchronized (this) {
                     updateView();
                     needUpdateView = false;
-                    System.out.println("Updated View");
                 }
                 setChanged();
                 notifyObservers(Action.ViewUpdated);
@@ -52,7 +48,6 @@ public class DataManager<T extends DataContainer> extends Observable {
             if (needUpdateMarks) {
                 synchronized (this) {
                     needUpdateMarks = false;
-                    System.out.println("Updated Marks");
                 }
                 setChanged();
                 notifyObservers(Action.MarksUpdated);
@@ -84,10 +79,6 @@ public class DataManager<T extends DataContainer> extends Observable {
             swapper[i] = i;
         }
         updater.start();
-//        while (!started) {
-//            System.out.println("o");
-//            started = false;
-//        }
     }
 
     public DataManager(@NotNull double[] ... data) {
@@ -133,6 +124,8 @@ public class DataManager<T extends DataContainer> extends Observable {
 
     public void setOverviewSuppressed(boolean overviewSuppressed) {
         this.overviewSuppressed = overviewSuppressed;
+        if (!this.overviewSuppressed)
+            needUpdateOverview = true;
     }
 
     public void setSwapper(@NotNull Integer[] swapper) {
@@ -166,6 +159,7 @@ public class DataManager<T extends DataContainer> extends Observable {
                 dataLines.get(map[i]).add(data[src[i]]);
             }
             needUpdateOverview = true;
+            needUpdateView = true;
         }
     }
 
@@ -175,6 +169,7 @@ public class DataManager<T extends DataContainer> extends Observable {
                 dataLines.get(map[i]).add(data[src[i]]);
             }
             needUpdateOverview = true;
+            needUpdateView = true;
         }
     }
 
@@ -184,18 +179,17 @@ public class DataManager<T extends DataContainer> extends Observable {
                 dataLines.get(i).add(data[i]);
             }
             needUpdateOverview = true;
+            needUpdateView = true;
         }
     }
 
     public void addData(@NotNull long[][] data) {
-//        while (!started) {
-//            System.out.println("o");
-//        }
         synchronized (this) {
             for (int i=0;i < dataLines.size() && i < data.length;i++) {
                 dataLines.get(i).add(data[i]);
             }
             needUpdateOverview = true;
+            needUpdateView = true;
         }
     }
 
@@ -392,6 +386,28 @@ public class DataManager<T extends DataContainer> extends Observable {
         synchronized (this) {
             start_end[0] = start;
             start_end[1] = end;
+            needUpdateView = true;
+            for (int i = 0; i < getSwapper().length; i++) {
+                ExtendedDataLine dl = dataLines.get(getSwapper()[i]);
+                dl.setOnline(false);
+            }
+        }
+    }
+
+    protected void setTailView() {
+        synchronized (this) {
+            ExtendedDataLine dl = null;
+            for (int i = 0; i < getSwapper().length; i++) {
+                dl = dataLines.get(getSwapper()[i]);
+                dl.setOnline(true);
+            }
+            if (dl == null) {
+                start_end[1] = 0;
+                start_end[0] = 0;
+            } else {
+                start_end[1] = dl.getMaxView();
+                start_end[0] = start_end[1] - DataLine.OVERVIEW_SIZE;
+            }
             needUpdateView = true;
         }
     }
