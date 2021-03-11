@@ -27,6 +27,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     public ExtendedDataLine(@NotNull T _data) {
         super(_data);
         mode.add(Mode.USUAL);
+        setFilter(new FIR(new double[]{1.}));
     }
 
     public boolean isOnline() {

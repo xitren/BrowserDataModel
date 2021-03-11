@@ -17,7 +17,7 @@ public abstract class DataContainer {
     @NotNull
     public static double[] toArray(@NotNull DataContainer src) {
         double[] fill = new double[src.length()];
-        src.datacopy(0, fill, 0, src.length());
+        src.datacopy(0, fill, 0, fill.length);
         return fill;
     }
 
