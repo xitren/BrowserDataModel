@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
-    private final Set<WindowDynamicParser> parsers = new HashSet<>();
-    private final Set<Mode> mode = new HashSet<>();
+    protected final Set<WindowDynamicParser> parsers = new HashSet<>();
+    protected final Set<Mode> mode = new HashSet<>();
     protected final Map<WindowSource, double[][]> modes = new HashMap<>();
     protected final double[][] filterView = new double[2][OVERVIEW_SIZE];
     protected final double[][] dctFilterView = new double[2][OVERVIEW_SIZE];
