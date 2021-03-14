@@ -21,21 +21,12 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     protected final double[][] rmsView = new double[2][OVERVIEW_SIZE];
     protected int rmsWindow = 30;
     protected FIR filter = null;
-    private DataContainer dataArrayFiltered;
-    private boolean online;
+    protected DataContainer dataArrayFiltered;
 
     public ExtendedDataLine(@NotNull T _data) {
         super(_data);
         mode.add(Mode.USUAL);
         setFilter(new FIR(new double[]{1.}));
-    }
-
-    public boolean isOnline() {
-        return online;
-    }
-
-    public void setOnline(boolean online) {
-        this.online = online;
     }
 
     public void clearParsers() {
@@ -160,9 +151,6 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
             calculateReducedView();
             return;
         }
-        if (online) {
-            calculateOnlineFilterView();
-        }
         activeView = OVERVIEW_SIZE;
         double multer = OVERVIEW_SIZE / ((double) (view[1] - view[0]));
         int start_d = view[0] - VIEW_PREP_SIZE;
@@ -178,17 +166,6 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
             filterView[1][i] = (view[0] + (i) / multer);
         }
         modes.put(WindowSource.FILTERED, filterView);
-    }
-
-    protected void calculateOnlineFilterView() {
-        discretisationView = discretisation;
-        activeView = OVERVIEW_SIZE;
-        view[1] = getMaxView();
-        view[0] = view[1] - OVERVIEW_SIZE;
-        dataArrayFiltered.lastblock(filterView[0], OVERVIEW_SIZE);
-        for (int i = 0; i < (view[1] - view[0]); i++) {
-            filterView[1][i] = (view[0] + i);
-        }
     }
 
     protected void calculateRMSView() {
@@ -210,7 +187,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
             }
             rmsView[0][i] = Math.sqrt(rmsView[0][i] / cnt);
         }
-        for (int i = 0; i < filterView[1].length; i++) {
+        for (int i = 0; i < rmsView[1].length; i++) {
             rmsView[1][i] = (view[0] + (i) / multer);
         }
         modes.put(WindowSource.POW, rmsView);
@@ -243,26 +220,14 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     protected void calculateSimpleView() {
         if (modes.containsKey(WindowSource.RAW))
             return;
-        if (online) {
-            view[1] = getMaxView();
-            view[0] = view[1] - OVERVIEW_SIZE;
-            super.calculateOnlineView();
-        } else {
-            super.calculateSimpleView();
-        }
+        super.calculateSimpleView();
         modes.put(WindowSource.RAW, usualView);
     }
 
     protected void calculateReducedView() {
         if (modes.containsKey(WindowSource.RAW))
             return;
-        if (online) {
-            view[1] = getMaxView();
-            view[0] = view[1] - OVERVIEW_SIZE;
-            super.calculateOnlineView();
-        } else {
-            super.calculateReducedView();
-        }
+        super.calculateReducedView();
         modes.put(WindowSource.RAW, usualView);
     }
 
@@ -338,9 +303,6 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     protected void calculateSimpleFilterView() {
         if (modes.containsKey(WindowSource.FILTERED))
             return;
-        if (online) {
-            calculateOnlineFilterView();
-        }
         discretisationView = discretisation;
         activeView = view[1] - view[0];
         DataContainer.datacopy(dataArrayFiltered, view[0], usualView[0], 0, view[1] - view[0]);

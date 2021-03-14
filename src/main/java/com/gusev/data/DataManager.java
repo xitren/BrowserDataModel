@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class DataManager<T extends DataContainer> extends Observable {
-    protected final List<ExtendedDataLine<T>> dataLines = new LinkedList();
+    protected final List<OnlineDataLine<T>> dataLines = new LinkedList();
     protected final List<Mark> marks = new LinkedList();
-    protected ExtendedDataLine.Mode[] modes;
+    protected OnlineDataLine.Mode[] modes;
     private Integer[] swapper = null;
     private String personDate;
     private double discretisation = 250;
@@ -60,7 +60,7 @@ public class DataManager<T extends DataContainer> extends Observable {
         }
     });
 
-    public DataManager(int n, ExtendedDataLine[] edl) {
+    public DataManager(int n, OnlineDataLine[] edl) {
         personDate = LocalDateTime.now().toString();
         swapper = new Integer[n];
         dataLabel = new String[n];
@@ -75,7 +75,7 @@ public class DataManager<T extends DataContainer> extends Observable {
     public DataManager(int n) {
         swapper = new Integer[n];
         for (int i=0;i < n;i++) {
-            dataLines.add(new ExtendedDataLine(new DynamicDataContainer()));
+            dataLines.add(new OnlineDataLine(new DynamicDataContainer()));
             swapper[i] = i;
         }
         updater.start();
@@ -83,7 +83,7 @@ public class DataManager<T extends DataContainer> extends Observable {
 
     public DataManager(@NotNull double[] ... data) {
         for (int i=0;i < data.length;i++) {
-            dataLines.add(new ExtendedDataLine(new StaticDataContainer(data[i])));
+            dataLines.add(new OnlineDataLine(new StaticDataContainer(data[i])));
         }
         updater.start();
     }
@@ -95,7 +95,7 @@ public class DataManager<T extends DataContainer> extends Observable {
         DataModelJson data = ow.readValueAs(DataModelJson.class);
         inputStreamReader.close();
         for (int i=0;i < data.data.length;i++) {
-            dataLines.add(new ExtendedDataLine(new StaticDataContainer(data.data[i])));
+            dataLines.add(new OnlineDataLine(new StaticDataContainer(data.data[i])));
         }
         dataLabel = data.data_label;
         for (int i=0;i < data.name.length;i++) {
@@ -218,10 +218,10 @@ public class DataManager<T extends DataContainer> extends Observable {
 
     public void saveToFile(String filename) throws IOException {
         DataModelJson data = new DataModelJson(dataLines.size(), marks.size());
-        Iterator<ExtendedDataLine<T>> it = dataLines.iterator();
+        Iterator<OnlineDataLine<T>> it = dataLines.iterator();
         int i = 0;
         while (it.hasNext()) {
-            ExtendedDataLine dlds = it.next();
+            OnlineDataLine dlds = it.next();
             data.data[i++] = dlds.toArray();
         }
         for (i = 0;i < getDataLabel().length;i++) {
@@ -248,11 +248,11 @@ public class DataManager<T extends DataContainer> extends Observable {
 
     public void saveToTXT(String filename) throws IOException {
         DataModelJson data = new DataModelJson(dataLines.size(), marks.size());
-        Iterator<ExtendedDataLine<T>> it = dataLines.iterator();
+        Iterator<OnlineDataLine<T>> it = dataLines.iterator();
         int i = 0;
         int length = 0;
         while (it.hasNext()) {
-            ExtendedDataLine dlds = it.next();
+            OnlineDataLine dlds = it.next();
             length = data.data[i].length;
             data.data[i++] = dlds.toArray();
         }
@@ -298,7 +298,7 @@ public class DataManager<T extends DataContainer> extends Observable {
         return dataLines.size();
     }
 
-    private ExtendedDataLine<T> getFromSwapper(int i){
+    private OnlineDataLine<T> getFromSwapper(int i){
         try {
             return dataLines.get(swapper[i]);
         } catch (IndexOutOfBoundsException ex) {
@@ -311,7 +311,7 @@ public class DataManager<T extends DataContainer> extends Observable {
         return getFromSwapper(i).toArray();
     }
 
-    public double[] getDataLine(int i, ExtendedDataLine.Mode mode) {
+    public double[] getDataLine(int i, OnlineDataLine.Mode mode) {
         return getFromSwapper(i).getDataView(mode);
     }
 
@@ -319,7 +319,7 @@ public class DataManager<T extends DataContainer> extends Observable {
         return dataLines.size();
     }
 
-    public double[] getTimeLine(int i, ExtendedDataLine.Mode mode) {
+    public double[] getTimeLine(int i, OnlineDataLine.Mode mode) {
         return getFromSwapper(i).getTimeView(mode);
     }
 
@@ -327,7 +327,7 @@ public class DataManager<T extends DataContainer> extends Observable {
         return getFromSwapper(i).getDataOverview();
     }
 
-    public Set<ExtendedDataLine.Mode> getMode(int i) {
+    public Set<OnlineDataLine.Mode> getMode(int i) {
         return getFromSwapper(i).getModes();
     }
 
@@ -335,7 +335,7 @@ public class DataManager<T extends DataContainer> extends Observable {
         return getFromSwapper(i).dataArray.length();
     }
 
-    public int getActiveView(int i, ExtendedDataLine.Mode mode) {
+    public int getActiveView(int i, OnlineDataLine.Mode mode) {
         return getFromSwapper(i).getActiveView(mode);
     }
 
@@ -373,9 +373,9 @@ public class DataManager<T extends DataContainer> extends Observable {
 
     private void updateView() {
         for (int i = 0; i < getSwapper().length; i++) {
-            ExtendedDataLine dl = dataLines.get(getSwapper()[i]);
+            OnlineDataLine dl = dataLines.get(getSwapper()[i]);
             dl.clearModes();
-            for (ExtendedDataLine.Mode em : modes) {
+            for (OnlineDataLine.Mode em : modes) {
                 dl.addMode(em);
             }
             dl.setView(start_end[0], start_end[1]);
@@ -388,7 +388,7 @@ public class DataManager<T extends DataContainer> extends Observable {
             start_end[1] = end;
             needUpdateView = true;
             for (int i = 0; i < getSwapper().length; i++) {
-                ExtendedDataLine dl = dataLines.get(getSwapper()[i]);
+                OnlineDataLine dl = dataLines.get(getSwapper()[i]);
                 dl.setOnline(false);
             }
         }
@@ -396,7 +396,7 @@ public class DataManager<T extends DataContainer> extends Observable {
 
     protected void setTailView() {
         synchronized (this) {
-            ExtendedDataLine dl = null;
+            OnlineDataLine dl = null;
             for (int i = 0; i < getSwapper().length; i++) {
                 dl = dataLines.get(getSwapper()[i]);
                 dl.setOnline(true);
@@ -454,7 +454,7 @@ public class DataManager<T extends DataContainer> extends Observable {
         this.discretisation = discretisation;
     }
 
-    public void setMode(int i, ExtendedDataLine.Mode def) {
+    public void setMode(int i, OnlineDataLine.Mode def) {
         synchronized (this) {
             modes[i] = def;
             needUpdateView = true;

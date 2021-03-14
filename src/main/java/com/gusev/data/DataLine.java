@@ -58,15 +58,6 @@ public class DataLine<T extends DataContainer> {
         }
     }
 
-    protected void calculateOnlineView() {
-        discretisationView = discretisation;
-        activeView = OVERVIEW_SIZE;
-        dataArray.lastblock(usualView[0], OVERVIEW_SIZE);
-        for (int i = 0; i < (view[1] - view[0]); i++) {
-            usualView[1][i] = (view[0] + i);
-        }
-    }
-
     protected void calculateSimpleView() {
         discretisationView = discretisation;
         activeView = view[1] - view[0];
