@@ -209,6 +209,8 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
                         calculateSimpleView();
                     break;
                 case POWER:
+                    calculateRMSView();
+                    break;
                 case USUAL:
                 default:
                     calculateSimpleView();
