@@ -141,7 +141,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
             dctView[0][i] = 0;
         }
         dct.forward(dctView[0], true);
-        double ss2 = ((double) (view[1] - view[0]) * 2);
+        double ss2 = ((double) (OVERVIEW_SIZE) * 2);
         dctView[0][0] = 0;
         for (int i = 0; i < dctView[0].length; i++) {
             dctView[0][i] = Math.abs(dctView[0][i]) / 1;
@@ -157,7 +157,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         DoubleDCT_1D dct = new DoubleDCT_1D(this.filterView[0].length);
         System.arraycopy(filterView[0], 0, dctFilterView[0], 0, view[1] - view[0]);
         dct.forward(dctFilterView[0], true);
-        double ss2 = ((double) (view[1] - view[0]) * 2);
+        double ss2 = ((double) (OVERVIEW_SIZE) * 2);
         dctFilterView[0][0] = 0;
         for (int i = 0; i < dctFilterView[0].length; i++) {
             dctFilterView[0][i] = Math.abs(dctFilterView[0][i]) / 1;
