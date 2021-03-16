@@ -42,16 +42,9 @@ public class DataLine<T extends DataContainer> {
     }
 
     protected void calculateReducedView() {
-        activeView = OVERVIEW_SIZE;
         double multer = OVERVIEW_SIZE / ((double) (view[1] - view[0]));
-        int start_d = view[0] - VIEW_PREP_SIZE;
-        if (start_d < 0)
-            start_d = 0;
-        int size_d = (int) ((view[1] - start_d) * multer);
-        if (size_d < OVERVIEW_SIZE)
-            size_d = OVERVIEW_SIZE;
-        discretisationView = discretisation * multer;
-        double timeMultiplicand = DataContainer.reduce(dataViewPrep, dataArray, start_d, view[1] - start_d);
+        discretisationView = discretisation * multer * 2;
+        double timeMultiplicand = DataContainer.reduce(dataViewPrep, dataArray, view[0], view[1] - view[0]);
         System.arraycopy(dataViewPrep, dataViewPrep.length - OVERVIEW_SIZE, usualView[0], 0, OVERVIEW_SIZE);
         for (int i = 0; i < usualView[1].length; i++) {
             usualView[1][i] = (view[0] + (i) / multer);
@@ -60,7 +53,6 @@ public class DataLine<T extends DataContainer> {
 
     protected void calculateSimpleView() {
         discretisationView = discretisation;
-        activeView = view[1] - view[0];
         DataContainer.datacopy(dataArray, view[0], usualView[0], 0, view[1] - view[0]);
         for (int i = 0; i < (view[1] - view[0]); i++) {
             usualView[1][i] = (view[0] + i);
@@ -70,8 +62,10 @@ public class DataLine<T extends DataContainer> {
     protected void calculateView(int start, int end) {
         checkView(start, end);
         if ((view[1] - view[0]) >= OVERVIEW_SIZE) {
+            activeView = OVERVIEW_SIZE;
             calculateReducedView();
         } else {
+            activeView = view[1] - view[0];
             calculateSimpleView();
         }
         viewActual = true;

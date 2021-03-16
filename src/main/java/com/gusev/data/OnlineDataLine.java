@@ -47,10 +47,11 @@ public class OnlineDataLine<T extends DataContainer> extends ExtendedDataLine<Da
         DoubleDCT_1D dct = new DoubleDCT_1D(this.usualView[0].length);
         System.arraycopy(usualView[0], 0, dctView[0], 0, usualView[0].length);
         dct.forward(dctView[0], true);
+        double ss2 = ((double) (view[1] - view[0]) * 2);
         dctView[0][0] = 0;
         for (int i = 0; i < dctView[0].length; i++) {
             dctView[0][i] = Math.abs(dctView[0][i]) / 1;
-            dctView[1][i] = ( ((double)i * discretisation)) / ((double) (view[1] - view[0]) * 2);
+            dctView[1][i] = ((double)i * discretisation) / ss2;
         }
         modes.put(WindowSource.FREQUENCIES, dctView);
     }
@@ -62,10 +63,11 @@ public class OnlineDataLine<T extends DataContainer> extends ExtendedDataLine<Da
         DoubleDCT_1D dct = new DoubleDCT_1D(this.filterView[0].length);
         System.arraycopy(filterView[0], 0, dctFilterView[0], 0, filterView[0].length);
         dct.forward(dctFilterView[0], true);
+        double ss2 = ((double) (view[1] - view[0]) * 2);
         dctFilterView[0][0] = 0;
         for (int i = 0; i < dctFilterView[0].length; i++) {
             dctFilterView[0][i] = Math.abs(dctFilterView[0][i]) / 1;
-            dctFilterView[1][i] = ( ((double)i * discretisation)) / ((double) (view[1] - view[0]) * 2);
+            dctFilterView[1][i] = ((double)i * discretisation) / ss2;
         }
         modes.put(WindowSource.FILTERED_FREQUENCIES, dctFilterView);
     }

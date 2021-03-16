@@ -112,67 +112,203 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         dataArrayFiltered.add(fill);
     }
 
-    protected void calculateFilteredFourierView() {
+    @Override
+    protected void calculateSimpleView() {
+        if (modes.containsKey(WindowSource.RAW))
+            return;
+        super.calculateSimpleView();
+        modes.put(WindowSource.RAW, usualView);
+    }
+
+    protected void calculateSimpleFilterView() {
+        if (modes.containsKey(WindowSource.FILTERED))
+            return;
+        int ss = (view[1] - view[0]);
+        DataContainer.datacopy(dataArrayFiltered, view[0], filterView[0], 0, ss);
+        for (int i = 0; i < ss; i++) {
+            filterView[1][i] = (view[0] + i);
+        }
+        modes.put(WindowSource.FILTERED, filterView);
+    }
+
+    protected void calculateSimpleFourierView() {
+        if (modes.containsKey(WindowSource.FREQUENCIES))
+            return;
+        calculateSimpleView();
+        DoubleDCT_1D dct = new DoubleDCT_1D(this.usualView[0].length);
+        System.arraycopy(usualView[0], 0, dctView[0], 0, view[1] - view[0]);
+        for (int i = view[1] - view[0]; i < OVERVIEW_SIZE; i++) {
+            dctView[0][i] = 0;
+        }
+        dct.forward(dctView[0], true);
+        double ss2 = ((double) (view[1] - view[0]) * 2);
+        dctView[0][0] = 0;
+        for (int i = 0; i < dctView[0].length; i++) {
+            dctView[0][i] = Math.abs(dctView[0][i]) / 1;
+            dctView[1][i] = ((double)i * discretisation) / ss2;
+        }
+        modes.put(WindowSource.FREQUENCIES, dctView);
+    }
+
+    protected void calculateSimpleFilteredFourierView() {
         if (modes.containsKey(WindowSource.FILTERED_FREQUENCIES))
             return;
-        calculateReducedFilterView();
-        double multer = OVERVIEW_SIZE / ((double) (view[1] - view[0]));
+        calculateSimpleFilterView();
         DoubleDCT_1D dct = new DoubleDCT_1D(this.filterView[0].length);
-        System.arraycopy(filterView[0], 0, dctFilterView[0], 0, filterView[0].length);
+        System.arraycopy(filterView[0], 0, dctFilterView[0], 0, view[1] - view[0]);
         dct.forward(dctFilterView[0], true);
+        double ss2 = ((double) (view[1] - view[0]) * 2);
         dctFilterView[0][0] = 0;
         for (int i = 0; i < dctFilterView[0].length; i++) {
             dctFilterView[0][i] = Math.abs(dctFilterView[0][i]) / 1;
-            dctFilterView[1][i] = ( ((double)i * discretisation)) / ((double) (view[1] - view[0]) * 2);
+            dctFilterView[1][i] = ((double)i * discretisation) / ss2;
         }
         modes.put(WindowSource.FILTERED_FREQUENCIES, dctFilterView);
     }
 
-    protected void calculateFourierView() {
-        if (modes.containsKey(WindowSource.FREQUENCIES))
+    protected void calculateSimpleRMSView() {
+        if (modes.containsKey(WindowSource.POW))
             return;
-        calculateReducedView();
-        double multer = OVERVIEW_SIZE / ((double) (view[1] - view[0]));
-        DoubleDCT_1D dct = new DoubleDCT_1D(this.usualView[0].length);
-        System.arraycopy(usualView[0], 0, dctView[0], 0, usualView[0].length);
-        dct.forward(dctView[0], true);
-        dctView[0][0] = 0;
-        for (int i = 0; i < dctView[0].length; i++) {
-            dctView[0][i] = Math.abs(dctView[0][i]) / 1;
-            dctView[1][i] = ( ((double)i * discretisation)) / ((double) (view[1] - view[0]) * 2);
+        calculateSimpleView();
+        int ss = (view[1] - view[0]);
+        double multer = OVERVIEW_SIZE / ((double) (ss));
+        for (int i = 0; i < ss; i++) {
+            rmsView[0][i] = 0;
         }
-        modes.put(WindowSource.FREQUENCIES, dctView);
+        for (int i = 0; i < ss; i++) {
+            int cnt = 0;
+            for (int k = -rmsWindow + 1; k < rmsWindow; k++) {
+                if ( (0 <= (i + k)) && ((i + k) < usualView[0].length) ) {
+                    rmsView[0][i] += usualView[0][(i + k)] * usualView[0][(i + k)];
+                    cnt++;
+                }
+            }
+            rmsView[0][i] = Math.sqrt(rmsView[0][i] / cnt);
+        }
+        for (int i = 0; i < ss; i++) {
+            rmsView[1][i] = (view[0] + (i) / multer);
+        }
+        modes.put(WindowSource.POW, rmsView);
+    }
+
+    protected void calculateSimpleView(int start, int end) {
+        for (Mode m : mode) {
+            switch (m) {
+                case POWER:
+                    calculateSimpleRMSView();
+                    break;
+                case USUAL:
+                    calculateSimpleView();
+                    break;
+                case FOURIER:
+                    calculateSimpleFourierView();
+                    break;
+                case FILTER:
+                    if (this.filter != null)
+                        calculateSimpleFilterView();
+                    else
+                        calculateSimpleView();
+                    break;
+                case FILTERED_FOURIER:
+                    calculateSimpleFilteredFourierView();
+                    break;
+                default:
+                    calculateSimpleView();
+                    break;
+            }
+        }
+        for (WindowDynamicParser wdp : parsers) {
+            WindowSource ws = wdp.getTypeOfSource();
+            if (!modes.containsKey(ws)) {
+                switch (ws) {
+                    case POW:
+                        calculateSimpleRMSView();
+                        break;
+                    case RAW:
+                        calculateSimpleView();
+                        break;
+                    case FREQUENCIES:
+                        calculateSimpleFourierView();
+                        break;
+                    case FILTERED:
+                        if (this.filter != null)
+                            calculateSimpleFilterView();
+                        else
+                            calculateSimpleView();
+                        break;
+                    case FILTERED_FREQUENCIES:
+                        calculateSimpleFilteredFourierView();
+                        break;
+                    default:
+                        calculateSimpleView();
+                        break;
+                }
+            }
+            double[][] r = modes.get(wdp.getTypeOfSource());
+            wdp.setData(r[0], r[1]);
+        }
+        discretisationView = discretisation;
+        activeView = view[1] - view[0];
+        viewActual = true;
+    }
+
+    @Override
+    protected void calculateReducedView() {
+        if (modes.containsKey(WindowSource.RAW))
+            return;
+        super.calculateReducedView();
+        modes.put(WindowSource.RAW, usualView);
     }
 
     protected void calculateReducedFilterView() {
         if (modes.containsKey(WindowSource.FILTERED))
             return;
-        if (filter == null) {
-            calculateReducedView();
-            return;
-        }
-        activeView = OVERVIEW_SIZE;
         double multer = OVERVIEW_SIZE / ((double) (view[1] - view[0]));
-        int start_d = view[0] - VIEW_PREP_SIZE;
-        if (start_d < 0)
-            start_d = 0;
-        int size_d = (int) ((view[1] - start_d) * multer);
-        if (size_d < OVERVIEW_SIZE)
-            size_d = OVERVIEW_SIZE;
         discretisationView = discretisation * multer;
-        double timeMultiplicand = DataContainer.reduce(dataViewPrep, dataArrayFiltered, start_d, view[1] - start_d);
-        System.arraycopy(dataViewPrep, dataViewPrep.length - OVERVIEW_SIZE, filterView[0], 0, OVERVIEW_SIZE);
-        for (int i = 0; i < filterView[1].length; i++) {
-            filterView[1][i] = (view[0] + (i) / multer);
+        double timeMultiplicand = DataContainer.reduce(dataViewPrep, dataArray, view[0], view[1] - view[0]);
+        System.arraycopy(dataViewPrep, dataViewPrep.length - OVERVIEW_SIZE, usualView[0], 0, OVERVIEW_SIZE);
+        for (int i = 0; i < usualView[1].length; i++) {
+            usualView[1][i] = (view[0] + (i) / multer);
         }
-        modes.put(WindowSource.FILTERED, filterView);
+        modes.put(WindowSource.FILTERED, usualView);
     }
 
-    protected void calculateRMSView() {
+    protected void calculateReducedFourierView() {
+        if (modes.containsKey(WindowSource.FREQUENCIES))
+            return;
+        calculateReducedView();
+        DoubleDCT_1D dct = new DoubleDCT_1D(this.usualView[0].length);
+        System.arraycopy(usualView[0], 0, dctView[0], 0, usualView[0].length);
+        dct.forward(dctView[0], true);
+        double ss2 = ((double) (view[1] - view[0]) * 2);
+        dctView[0][0] = 0;
+        for (int i = 0; i < dctView[0].length; i++) {
+            dctView[0][i] = Math.abs(dctView[0][i]) / 1;
+            dctView[1][i] = ((double)i * discretisation) / ss2;
+        }
+        modes.put(WindowSource.FREQUENCIES, dctView);
+    }
+
+    protected void calculateReducedFilteredFourierView() {
+        if (modes.containsKey(WindowSource.FREQUENCIES))
+            return;
+        calculateReducedFilterView();
+        DoubleDCT_1D dct = new DoubleDCT_1D(this.filterView[0].length);
+        System.arraycopy(filterView[0], 0, dctFilterView[0], 0, filterView[0].length);
+        dct.forward(dctFilterView[0], true);
+        double ss2 = ((double) (view[1] - view[0]) * 2);
+        dctFilterView[0][0] = 0;
+        for (int i = 0; i < dctFilterView[0].length; i++) {
+            dctFilterView[0][i] = Math.abs(dctFilterView[0][i]) / 1;
+            dctFilterView[1][i] = ((double)i * discretisation) / ss2;
+        }
+        modes.put(WindowSource.FREQUENCIES, dctFilterView);
+    }
+
+    protected void calculateReducedRMSView() {
         if (modes.containsKey(WindowSource.POW))
             return;
         calculateReducedView();
-        activeView = OVERVIEW_SIZE;
         double multer = OVERVIEW_SIZE / ((double) (view[1] - view[0]));
         for (int i = 0; i < rmsView[0].length; i++) {
             rmsView[0][i] = 0;
@@ -193,44 +329,65 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         modes.put(WindowSource.POW, rmsView);
     }
 
-    protected void calculateSimpleView(int start, int end) {
+    protected void calculateReducedView(int start, int end) {
         for (Mode m : mode) {
             switch (m) {
-                case FILTERED_FOURIER:
-                    calculateFilteredFourierView();
+                case POWER:
+                    calculateReducedRMSView();
+                    break;
+                case USUAL:
+                    calculateReducedView();
                     break;
                 case FOURIER:
-                    calculateFourierView();
+                    calculateReducedFourierView();
                     break;
                 case FILTER:
                     if (this.filter != null)
-                        calculateSimpleFilterView();
+                        calculateReducedFilterView();
                     else
-                        calculateSimpleView();
+                        calculateReducedView();
                     break;
-                case POWER:
-                    calculateRMSView();
+                case FILTERED_FOURIER:
+                    calculateReducedFilteredFourierView();
                     break;
-                case USUAL:
                 default:
-                    calculateSimpleView();
+                    calculateReducedView();
                     break;
             }
         }
-    }
-
-    protected void calculateSimpleView() {
-        if (modes.containsKey(WindowSource.RAW))
-            return;
-        super.calculateSimpleView();
-        modes.put(WindowSource.RAW, usualView);
-    }
-
-    protected void calculateReducedView() {
-        if (modes.containsKey(WindowSource.RAW))
-            return;
-        super.calculateReducedView();
-        modes.put(WindowSource.RAW, usualView);
+        for (WindowDynamicParser wdp : parsers) {
+            WindowSource ws = wdp.getTypeOfSource();
+            if (!modes.containsKey(ws)) {
+                switch (ws) {
+                    case POW:
+                        calculateReducedRMSView();
+                        break;
+                    case RAW:
+                        calculateReducedView();
+                        break;
+                    case FREQUENCIES:
+                        calculateReducedFourierView();
+                        break;
+                    case FILTERED:
+                        if (this.filter != null)
+                            calculateReducedFilterView();
+                        else
+                            calculateReducedView();
+                        break;
+                    case FILTERED_FREQUENCIES:
+                        calculateReducedFilteredFourierView();
+                        break;
+                    default:
+                        calculateReducedView();
+                        break;
+                }
+            }
+            double[][] r = modes.get(wdp.getTypeOfSource());
+            wdp.setData(r[0], r[1]);
+        }
+        discretisationView = discretisation;
+        activeView = OVERVIEW_SIZE;
+        viewActual = true;
     }
 
     @Override
@@ -241,77 +398,10 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         modes.clear();
         int ss = (view[1] - view[0]);
         if (ss >= (OVERVIEW_SIZE)) {
-            for (Mode m : mode) {
-                switch (m) {
-                    case POWER:
-                        calculateRMSView();
-                        break;
-                    case USUAL:
-                        calculateReducedView();
-                        break;
-                    case FOURIER:
-                        calculateFourierView();
-                        break;
-                    case FILTER:
-                        if (this.filter != null)
-                            calculateReducedFilterView();
-                        else
-                            calculateReducedView();
-                        break;
-                    case FILTERED_FOURIER:
-                        calculateFilteredFourierView();
-                        break;
-                    default:
-                        calculateReducedView();
-                        break;
-                }
-            }
+            calculateReducedView(start, end);
         } else {
             calculateSimpleView(start, end);
         }
-        for (WindowDynamicParser wdp : parsers) {
-            WindowSource ws = wdp.getTypeOfSource();
-            if (!modes.containsKey(ws)) {
-                switch (ws) {
-                    case POW:
-                        calculateRMSView();
-                        break;
-                    case RAW:
-                        calculateReducedView();
-                        break;
-                    case FREQUENCIES:
-                        calculateFourierView();
-                        break;
-                    case FILTERED:
-                        if (this.filter != null)
-                            calculateReducedFilterView();
-                        else
-                            calculateReducedView();
-                        break;
-                    case FILTERED_FREQUENCIES:
-                        calculateFilteredFourierView();
-                        break;
-                    default:
-                        calculateReducedView();
-                        break;
-                }
-            }
-            double[][] r = modes.get(wdp.getTypeOfSource());
-            wdp.setData(r[0], r[1]);
-        }
-        viewActual = true;
-    }
-
-    protected void calculateSimpleFilterView() {
-        if (modes.containsKey(WindowSource.FILTERED))
-            return;
-        discretisationView = discretisation;
-        activeView = view[1] - view[0];
-        DataContainer.datacopy(dataArrayFiltered, view[0], usualView[0], 0, view[1] - view[0]);
-        for (int i = 0; i < (view[1] - view[0]); i++) {
-            usualView[1][i] = view[0] + i;
-        }
-        modes.put(WindowSource.FILTERED, filterView);
     }
 
     public double[] getDataView(Mode m){
@@ -350,7 +440,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         switch (m) {
             case FOURIER:
             case FILTERED_FOURIER:
-                return activeView / 2;
+                return OVERVIEW_SIZE / 2;
             case POWER:
             case FILTER:
             case USUAL:
