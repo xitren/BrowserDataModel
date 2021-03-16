@@ -461,6 +461,13 @@ public class DataManager<T extends DataContainer> extends Observable {
         }
     }
 
+    public void setCurrentMark(String name, String color, String label_color) {
+        synchronized (this) {
+            marks.add(new Mark(-1, start_end[0], start_end[1], name, color, label_color));
+            needUpdateMarks = true;
+        }
+    }
+
     public enum Action {
         OverviewUpdated, ViewUpdated, MarksUpdated
     }
