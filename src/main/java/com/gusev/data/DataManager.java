@@ -15,18 +15,18 @@ public class DataManager<T extends DataContainer> extends Observable {
     protected final List<OnlineDataLine<T>> dataLines = new LinkedList();
     protected final List<Mark> marks = new LinkedList();
     protected OnlineDataLine.Mode[] modes;
-    private Integer[] swapper = null;
+    protected Integer[] swapper = null;
     private String personDate;
     private double discretisation = 250;
     private double timePeriod = 0.004;
-    private String[] dataLabel;
+    protected String[] dataLabel;
     private boolean needUpdateOverview = true;
     private boolean needUpdateView = true;
     private boolean needUpdateMarks = true;
     private boolean stopped = false;
     private boolean overviewSuppressed = false;
     private int[] start_end = new int[2];
-    private final Thread updater = new Thread(()->{
+    protected final Thread updater = new Thread(()->{
         while (!stopped) {
             if (needUpdateOverview && !overviewSuppressed) {
                 synchronized (this) {
