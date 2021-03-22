@@ -25,6 +25,8 @@ public class DataManager<T extends DataContainer> extends Observable {
     private boolean needUpdateMarks = true;
     private boolean stopped = false;
     private boolean overviewSuppressed = false;
+    private boolean stop = false;
+    private boolean online = true;
     private int[] start_end = new int[2];
     protected final Thread updater = new Thread(()->{
         while (!stopped) {
@@ -118,6 +120,24 @@ public class DataManager<T extends DataContainer> extends Observable {
         stopped = true;
     }
 
+    public void pause() {
+        stop = true;
+        online = false;
+    }
+
+    public void start() {
+        stop = false;
+        online = true;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
+
     public boolean isOverviewSuppressed() {
         return overviewSuppressed;
     }
@@ -154,6 +174,8 @@ public class DataManager<T extends DataContainer> extends Observable {
     }
 
     public void addDataMap(@NotNull double[][] data, int[] src, int[] map) {
+        if (stop)
+            return;
         synchronized (this) {
             for (int i=0;i < map.length && i < src.length;i++) {
                 dataLines.get(map[i]).add(data[src[i]]);
@@ -164,6 +186,8 @@ public class DataManager<T extends DataContainer> extends Observable {
     }
 
     public void addDataMap(@NotNull long[][] data, int[] src, int[] map) {
+        if (stop)
+            return;
         synchronized (this) {
             for (int i=0;i < map.length && i < src.length;i++) {
                 dataLines.get(map[i]).add(data[src[i]]);
@@ -174,6 +198,8 @@ public class DataManager<T extends DataContainer> extends Observable {
     }
 
     public void addData(@NotNull double[][] data) {
+        if (stop)
+            return;
         synchronized (this) {
             for (int i=0;i < dataLines.size() && i < data.length;i++) {
                 dataLines.get(i).add(data[i]);
@@ -184,6 +210,8 @@ public class DataManager<T extends DataContainer> extends Observable {
     }
 
     public void addData(@NotNull long[][] data) {
+        if (stop)
+            return;
         synchronized (this) {
             for (int i=0;i < dataLines.size() && i < data.length;i++) {
                 dataLines.get(i).add(data[i]);
