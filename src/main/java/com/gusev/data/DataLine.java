@@ -89,7 +89,11 @@ public class DataLine<T extends DataContainer> {
     }
 
     public void setView(int start, int end) {
-        calculateView(start, end);
+        try {
+            calculateView(start, end);
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            System.out.println(ex);
+        }
     }
 
     public int getMaxView() {
