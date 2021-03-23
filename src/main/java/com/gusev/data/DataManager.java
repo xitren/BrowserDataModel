@@ -424,6 +424,19 @@ public class DataManager<T extends DataContainer> extends Observable {
         }
     }
 
+    protected void setMaxView() {
+        synchronized (this) {
+            for (int i = 0; i < dataLines.size(); i++) {
+                OnlineDataLine dl = dataLines.get(getSwapper()[i]);
+                dl.setOnline(false);
+                start_end[0] = 0;
+                start_end[1] = dl.getMaxView();
+                needUpdateView = true;
+                return;
+            }
+        }
+    }
+
     protected void setTailView() {
         synchronized (this) {
             OnlineDataLine dl = null;
