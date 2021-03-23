@@ -400,6 +400,8 @@ public class DataManager<T extends DataContainer> extends Observable {
     }
 
     private void updateView() {
+        if (getSwapper() == null)
+            return;
         for (int i = 0; i < getSwapper().length; i++) {
             OnlineDataLine dl = dataLines.get(getSwapper()[i]);
             dl.clearModes();
