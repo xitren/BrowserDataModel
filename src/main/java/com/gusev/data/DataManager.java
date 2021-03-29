@@ -30,15 +30,6 @@ public class DataManager<T extends DataContainer> extends Observable {
     private int[] start_end = new int[2];
     protected final Thread updater = new Thread(()->{
         while (!stopped) {
-            if (needUpdateOverview && !overviewSuppressed) {
-                synchronized (this) {
-                    unsetOverview();
-                    updateOverview();
-                    needUpdateOverview = false;
-                }
-                setChanged();
-                notifyObservers(Action.OverviewUpdated);
-            }
             if (needUpdateView) {
                 synchronized (this) {
                     updateView();
@@ -61,6 +52,24 @@ public class DataManager<T extends DataContainer> extends Observable {
             }
         }
     });
+    protected final Thread updater_overview = new Thread(()->{
+        while (!stopped) {
+            if (needUpdateOverview && !overviewSuppressed) {
+                synchronized (this) {
+                    unsetOverview();
+                    updateOverview();
+                    needUpdateOverview = false;
+                }
+                setChanged();
+                notifyObservers(Action.OverviewUpdated);
+            }
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    });
 
     public DataManager(int n, OnlineDataLine[] edl) {
         personDate = LocalDateTime.now().toString();
@@ -72,6 +81,7 @@ public class DataManager<T extends DataContainer> extends Observable {
             dataLabel[i] = "";
         }
         updater.start();
+        updater_overview.start();
     }
 
     public DataManager(int n) {
@@ -81,6 +91,7 @@ public class DataManager<T extends DataContainer> extends Observable {
             swapper[i] = i;
         }
         updater.start();
+        updater_overview.start();
     }
 
     public DataManager(@NotNull double[] ... data) {
@@ -88,6 +99,7 @@ public class DataManager<T extends DataContainer> extends Observable {
             dataLines.add(new OnlineDataLine(new StaticDataContainer(data[i])));
         }
         updater.start();
+        updater_overview.start();
     }
 
     public DataManager(String filename) throws IOException {
@@ -109,6 +121,7 @@ public class DataManager<T extends DataContainer> extends Observable {
             swapper[i] = i;
         }
         updater.start();
+        updater_overview.start();
     }
 
     @Override
