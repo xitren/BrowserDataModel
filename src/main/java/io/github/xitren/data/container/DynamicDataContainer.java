@@ -14,12 +14,19 @@ public class DynamicDataContainer extends DataContainer {
     private int end_block = -1;
     private double[] block = null;
 
+    /**
+     * Конструктор - создание нового объекта и присваивание полю {@link dataArray} массив длинной 16
+     */
     public DynamicDataContainer() {
         dataArray = new ArrayList<>();
         add(new double[16]);
         end_block = start_block = 0;
     }
 
+    /**
+     * Функция получения длины поля {@link dataArray}
+     * @return возвращает длину записанную в поле {@link overall_size}
+     */
     @Override
     public int length() {
         return overall_size;
@@ -30,13 +37,11 @@ public class DynamicDataContainer extends DataContainer {
         if (i >= overall_size)
             throw new ArrayIndexOutOfBoundsException();
         int s;
-//        List<String> log = new LinkedList();
         Double gh = null;
         synchronized (this) {
             if ((i < start_block) || (ins == null)) {
                 ins = dataArray.listIterator();
                 end_block = start_block = -1;
-//                log.add("st i = " + i + " st = " + start_block + " en = " + end_block);
             }
             if (end_block <= i) {
                 for (int j = 0; ins.hasNext(); j++) {
@@ -46,9 +51,7 @@ public class DynamicDataContainer extends DataContainer {
                     else
                         start_block = end_block;
                     end_block = start_block + block.length;
-//                    log.add("en i = " + i + " st = " + start_block + " en = " + end_block);
                     if (((start_block <= i) && (i < end_block))) {
-//                        log.add("break");
                         try {
                             gh = block[i - start_block];
                         } catch (ArrayIndexOutOfBoundsException ex) {
@@ -58,7 +61,6 @@ public class DynamicDataContainer extends DataContainer {
                     }
                 }
             } else {
-//                log.add("al i = " + i + " st = " + start_block + " en = " + end_block);
                 try {
                     gh = block[i - start_block];
                 } catch (ArrayIndexOutOfBoundsException ex) {
@@ -72,12 +74,14 @@ public class DynamicDataContainer extends DataContainer {
         return gh;
     }
 
+    /**
+     * Функция записи последнего блока данных размером size в массив
+     * @param doubles - массив в который будет происходить копирование
+     * @param size - необходимый размер блока
+     */
     @Override
     public void lastblock(double[] doubles, int size) {
         synchronized (this) {
-            if (size > this.length()) {
-
-            }
             if (dataArray.size() > 0) {
                 int i = dataArray.size() - 1;
                 while (size > 0 && i > 0) {
@@ -91,12 +95,14 @@ public class DynamicDataContainer extends DataContainer {
         }
     }
 
+    /**
+     * Функция получения последнего блока данных размером size
+     * @param size - необходимый размер блока
+     * @return возвращает полученный блок в виде массива
+     */
     @Override
     public double[] lastblock(int size) {
         synchronized (this) {
-            if (size > this.length()) {
-
-            }
             if (dataArray.size() > 0) {
                 int i = dataArray.size() - 1;
                 double[] doubles = new double[size];
@@ -113,6 +119,10 @@ public class DynamicDataContainer extends DataContainer {
         }
     }
 
+    /**
+     * Функция добавления данных в поле {@link dataArray}
+     * @param data - массив данных, помещаемый в поле
+     */
     @Override
     public void add(@NotNull double[] data) {
         synchronized (this) {
@@ -122,6 +132,10 @@ public class DynamicDataContainer extends DataContainer {
         }
     }
 
+    /**
+     * Функция добавления данных в поле {@link dataArray} массивом типа int[]
+     * @param data - массив данных, помещаемый в поле
+     */
     @Override
     public void add(@NotNull int[] data) {
         double[] doubles = new double[data.length];
@@ -131,6 +145,10 @@ public class DynamicDataContainer extends DataContainer {
         add(doubles);
     }
 
+    /**
+     * Функция добавления данных в поле {@link dataArray} массивом типа long[]
+     * @param data - массив данных, помещаемый в поле
+     */
     @Override
     public void add(@NotNull long[] data) {
         double[] doubles = new double[data.length];
@@ -140,6 +158,13 @@ public class DynamicDataContainer extends DataContainer {
         add(doubles);
     }
 
+    /**
+     * Функция копирования данных из поля {@link dataArray} в массив dest
+     * @param srcPos - начальная позиция копируемого блока данных
+     * @param dest - массив принимающий скопированные данные
+     * @param destPos - начальная позиция для вставки копируемого блока данных
+     * @param size - необходимый размер блока
+     */
     @Override
     public void datacopy(int srcPos, double[] dest, int destPos, int size) {
         if (srcPos >= overall_size && (destPos + size <= dest.length))
@@ -180,6 +205,10 @@ public class DynamicDataContainer extends DataContainer {
         }
     }
 
+    /**
+     * Функция пересчёта длины поля {@link dataArray} и пререзаписи значения в поле {@link overall_size}
+     * @return возвращает длину записанную в поле {@link overall_size}
+     */
     private int allLength() {
         Iterator<double[]> ins = dataArray.iterator();
         overall_size = 0;
@@ -190,6 +219,11 @@ public class DynamicDataContainer extends DataContainer {
         return overall_size;
     }
 
+    /**
+     * Функция вырезает блоки, не входящие в промежуток от start до (start + size)
+     * @param start - номер элемента с которого начинается вырезание
+     * @param size - размер вырезаемого блока
+     */
     @Override
     public void cut(int start, int size) {
         synchronized (this) {
@@ -213,6 +247,9 @@ public class DynamicDataContainer extends DataContainer {
         }
     }
 
+    /**
+     * Функция создаёт новый пустой объект {@link DynamicDataContainer}
+     */
     @Override
     public DataContainer clone() {
         return new DynamicDataContainer();
