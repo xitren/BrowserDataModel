@@ -1,4 +1,4 @@
-package com.gusev.data;
+package io.github.xitren.data;
 
 public class Mark {
     public int start;

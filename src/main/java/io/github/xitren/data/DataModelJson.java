@@ -1,4 +1,4 @@
-package com.gusev.data;
+package io.github.xitren.data;
 
 public class DataModelJson {
     public String person_name = "";

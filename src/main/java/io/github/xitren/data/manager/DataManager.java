@@ -1,10 +1,15 @@
-package com.gusev.data;
+package io.github.xitren.data.manager;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.gusev.data.offline.StaticDataContainer;
-import com.gusev.data.online.DynamicDataContainer;
+import io.github.xitren.data.*;
+import io.github.xitren.data.container.DataContainer;
+import io.github.xitren.data.container.DynamicDataContainer;
+import io.github.xitren.data.container.StaticDataContainer;
+import io.github.xitren.data.line.DataLine;
+import io.github.xitren.data.line.DataLineMode;
+import io.github.xitren.data.line.OnlineDataLine;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -14,7 +19,7 @@ import java.util.*;
 public class DataManager<T extends DataContainer> extends Observable {
     protected final List<OnlineDataLine<T>> dataLines = new LinkedList();
     protected final List<Mark> marks = new LinkedList();
-    protected OnlineDataLine.Mode[] modes;
+    protected DataLineMode[] modes;
     protected Integer[] swapper = null;
     private String personDate;
     private double discretisation = 250;
@@ -36,14 +41,14 @@ public class DataManager<T extends DataContainer> extends Observable {
                     needUpdateView = false;
                 }
                 setChanged();
-                notifyObservers(Action.ViewUpdated);
+                notifyObservers(DataManagerAction.ViewUpdated);
             }
             if (needUpdateMarks) {
                 synchronized (this) {
                     needUpdateMarks = false;
                 }
                 setChanged();
-                notifyObservers(Action.MarksUpdated);
+                notifyObservers(DataManagerAction.MarksUpdated);
             }
             try {
                 Thread.sleep(100L);
@@ -61,7 +66,7 @@ public class DataManager<T extends DataContainer> extends Observable {
                     needUpdateOverview = false;
                 }
                 setChanged();
-                notifyObservers(Action.OverviewUpdated);
+                notifyObservers(DataManagerAction.OverviewUpdated);
             }
             try {
                 Thread.sleep(100L);
@@ -352,7 +357,7 @@ public class DataManager<T extends DataContainer> extends Observable {
         return getFromSwapper(i).toArray();
     }
 
-    public double[] getDataLine(int i, OnlineDataLine.Mode mode) {
+    public double[] getDataLine(int i, DataLineMode mode) {
         return getFromSwapper(i).getDataView(mode);
     }
 
@@ -360,7 +365,7 @@ public class DataManager<T extends DataContainer> extends Observable {
         return dataLines.size();
     }
 
-    public double[] getTimeLine(int i, OnlineDataLine.Mode mode) {
+    public double[] getTimeLine(int i, DataLineMode mode) {
         return getFromSwapper(i).getTimeView(mode);
     }
 
@@ -368,15 +373,11 @@ public class DataManager<T extends DataContainer> extends Observable {
         return getFromSwapper(i).getDataOverview();
     }
 
-    public Set<OnlineDataLine.Mode> getMode(int i) {
+    public Set<DataLineMode> getMode(int i) {
         return getFromSwapper(i).getModes();
     }
 
-    public int getDataContainerSize(int i) {
-        return getFromSwapper(i).dataArray.length();
-    }
-
-    public int getActiveView(int i, OnlineDataLine.Mode mode) {
+    public int getActiveView(int i, DataLineMode mode) {
         return getFromSwapper(i).getActiveView(mode);
     }
 
@@ -393,7 +394,7 @@ public class DataManager<T extends DataContainer> extends Observable {
 
     protected void unsetOverview() {
         for (int i=0;i < dataLines.size();i++) {
-            dataLines.get(i).overviewActual = false;
+            dataLines.get(i).unsetOverview();
         }
     }
 
@@ -418,7 +419,7 @@ public class DataManager<T extends DataContainer> extends Observable {
         for (int i = 0; i < getSwapper().length; i++) {
             OnlineDataLine dl = dataLines.get(getSwapper()[i]);
             dl.clearModes();
-            for (OnlineDataLine.Mode em : modes) {
+            for (DataLineMode em : modes) {
                 dl.addMode(em);
             }
             dl.setView(start_end[0], start_end[1]);
@@ -510,7 +511,7 @@ public class DataManager<T extends DataContainer> extends Observable {
         this.discretisation = discretisation;
     }
 
-    public void setMode(int i, OnlineDataLine.Mode def) {
+    public void setMode(int i, DataLineMode def) {
         synchronized (this) {
             modes[i] = def;
             needUpdateView = true;
@@ -524,7 +525,4 @@ public class DataManager<T extends DataContainer> extends Observable {
         }
     }
 
-    public enum Action {
-        OverviewUpdated, ViewUpdated, MarksUpdated
-    }
 }

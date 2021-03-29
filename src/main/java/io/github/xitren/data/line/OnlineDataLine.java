@@ -1,7 +1,8 @@
-package com.gusev.data;
+package io.github.xitren.data.line;
 
-import com.gusev.data.window.op.WindowDynamicParser;
-import com.gusev.data.window.op.WindowSource;
+import io.github.xitren.data.container.DataContainer;
+import io.github.xitren.data.window.WindowDynamicParser;
+import io.github.xitren.data.window.WindowSource;
 import edu.emory.mathcs.jtransforms.dct.DoubleDCT_1D;
 import org.jetbrains.annotations.NotNull;
 
@@ -110,7 +111,7 @@ public class OnlineDataLine<T extends DataContainer> extends ExtendedDataLine<Da
         activeView = OVERVIEW_SIZE;
         view[1] = getMaxView();
         view[0] = view[1] - OVERVIEW_SIZE;
-        for (Mode m : mode) {
+        for (DataLineMode m : mode) {
             switch (m) {
                 case POWER:
                     calculateOnlineRMSView();
@@ -166,5 +167,9 @@ public class OnlineDataLine<T extends DataContainer> extends ExtendedDataLine<Da
             wdp.setData(r[0], r[1]);
         }
         viewActual = true;
+    }
+
+    public void unsetOverview() {
+        overviewActual = false;
     }
 }

@@ -1,6 +1,5 @@
-package com.gusev.data.offline;
+package io.github.xitren.data.container;
 
-import com.gusev.data.DataContainer;
 import org.jetbrains.annotations.NotNull;
 
 public class StaticDataContainer extends DataContainer {

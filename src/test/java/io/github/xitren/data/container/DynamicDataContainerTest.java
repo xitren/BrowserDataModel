@@ -1,8 +1,5 @@
-package com.gusev.data.online;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+package io.github.xitren.data.container;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class DynamicDataContainerTest {
@@ -26,7 +23,7 @@ public class DynamicDataContainerTest {
         for (int i = 0; i < 4; i++) {
             view2[i] = ddc.get(i + 24);
         }
-        assertArrayEquals(view, view2);
+        Assertions.assertArrayEquals(view, view2);
     }
 
     private final int SIZE = 32;

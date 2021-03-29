@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.gusev.data;
+package io.github.xitren.data;
 
 /**
  * @author xitre

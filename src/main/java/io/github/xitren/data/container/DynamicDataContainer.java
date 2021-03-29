@@ -1,12 +1,9 @@
-package com.gusev.data.online;
+package io.github.xitren.data.container;
 
-import com.gusev.data.DataContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 public class DynamicDataContainer extends DataContainer {
     final private ArrayList<double[]> dataArray;

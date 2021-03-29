@@ -1,4 +1,4 @@
-package com.gusev.data;
+package io.github.xitren.data;
 
 public class RMS {
     protected int defaultDelayInSamples;

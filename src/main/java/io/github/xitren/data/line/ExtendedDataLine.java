@@ -1,8 +1,10 @@
-package com.gusev.data;
+package io.github.xitren.data.line;
 
-import com.gusev.data.offline.StaticDataContainer;
-import com.gusev.data.window.op.WindowDynamicParser;
-import com.gusev.data.window.op.WindowSource;
+import io.github.xitren.data.container.DataContainer;
+import io.github.xitren.data.container.StaticDataContainer;
+import io.github.xitren.data.window.WindowDynamicParser;
+import io.github.xitren.data.window.WindowSource;
+import io.github.xitren.data.FIR;
 import edu.emory.mathcs.jtransforms.dct.DoubleDCT_1D;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +15,7 @@ import java.util.Set;
 
 public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     protected final Set<WindowDynamicParser> parsers = new HashSet<>();
-    protected final Set<Mode> mode = new HashSet<>();
+    protected final Set<DataLineMode> mode = new HashSet<>();
     protected final Map<WindowSource, double[][]> modes = new HashMap<>();
     protected final double[][] filterView = new double[2][OVERVIEW_SIZE];
     protected final double[][] dctFilterView = new double[2][OVERVIEW_SIZE];
@@ -25,7 +27,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
 
     public ExtendedDataLine(@NotNull T _data) {
         super(_data);
-        mode.add(Mode.USUAL);
+        mode.add(DataLineMode.USUAL);
         setFilter(new FIR(new double[]{1.}));
     }
 
@@ -70,15 +72,11 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         add(doubles);
     }
 
-    public enum Mode {
-        USUAL, FOURIER, FILTER, FILTERED_FOURIER, POWER
-    }
-
-    public void addMode(@NotNull Mode def) {
+    public void addMode(@NotNull DataLineMode def) {
         this.mode.add(def);
     }
 
-    public void removeMode(@NotNull Mode def) {
+    public void removeMode(@NotNull DataLineMode def) {
         this.mode.remove(def);
     }
 
@@ -86,7 +84,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         this.mode.clear();
     }
 
-    public Set<Mode> getModes() {
+    public Set<DataLineMode> getModes() {
         return mode;
     }
 
@@ -192,7 +190,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     }
 
     protected void calculateSimpleView(int start, int end) {
-        for (Mode m : mode) {
+        for (DataLineMode m : mode) {
             switch (m) {
                 case POWER:
                     calculateSimpleRMSView();
@@ -330,7 +328,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     }
 
     protected void calculateReducedView(int start, int end) {
-        for (Mode m : mode) {
+        for (DataLineMode m : mode) {
             switch (m) {
                 case POWER:
                     calculateReducedRMSView();
@@ -404,7 +402,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         }
     }
 
-    public double[] getDataView(Mode m){
+    public double[] getDataView(DataLineMode m){
         switch (m) {
             case POWER:
                 return rmsView[0];
@@ -420,7 +418,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         }
     }
 
-    public double[] getTimeView(Mode m){
+    public double[] getTimeView(DataLineMode m){
         switch (m) {
             case POWER:
                 return rmsView[1];
@@ -436,7 +434,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         }
     }
 
-    public int getActiveView(Mode m) {
+    public int getActiveView(DataLineMode m) {
         switch (m) {
             case FOURIER:
             case FILTERED_FOURIER:

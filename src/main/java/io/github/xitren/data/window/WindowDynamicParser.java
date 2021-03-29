@@ -1,6 +1,4 @@
-package com.gusev.data.window.op;
-
-import com.gusev.data.window.op.WindowSource;
+package io.github.xitren.data.window;
 
 public abstract class WindowDynamicParser {
     protected final WindowSource typeOfSource;

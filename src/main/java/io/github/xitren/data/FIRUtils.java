@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gusev.data;
+package io.github.xitren.data;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;

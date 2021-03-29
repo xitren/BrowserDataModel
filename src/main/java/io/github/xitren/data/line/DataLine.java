@@ -1,5 +1,6 @@
-package com.gusev.data;
+package io.github.xitren.data.line;
 
+import io.github.xitren.data.container.DataContainer;
 import org.jetbrains.annotations.NotNull;
 
 public class DataLine<T extends DataContainer> {
