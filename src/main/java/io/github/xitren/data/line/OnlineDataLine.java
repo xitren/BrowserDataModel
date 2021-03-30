@@ -27,6 +27,7 @@ public class OnlineDataLine<T extends DataContainer> extends ExtendedDataLine<T>
         dataArrayFiltered.lastblock(filterView[0], OVERVIEW_SIZE);
         for (int i = 0; i < (view[1] - view[0]); i++) {
             filterView[1][i] = (view[0] + i);
+            filterView[2][i] = (view[0] + i) / discretisation;
         }
         modes.put(WindowSource.FILTERED, filterView);
     }
@@ -37,6 +38,7 @@ public class OnlineDataLine<T extends DataContainer> extends ExtendedDataLine<T>
         dataArray.lastblock(usualView[0], OVERVIEW_SIZE);
         for (int i = 0; i < (view[1] - view[0]); i++) {
             usualView[1][i] = (view[0] + i);
+            usualView[2][i] = (view[0] + i) / discretisation;
         }
         modes.put(WindowSource.RAW, usualView);
     }
@@ -93,6 +95,7 @@ public class OnlineDataLine<T extends DataContainer> extends ExtendedDataLine<T>
         }
         for (int i = 0; i < rmsView[1].length; i++) {
             rmsView[1][i] = (view[0] + (i) / multer);
+            rmsView[2][i] = (view[0] + (i) / multer) / discretisation;
         }
         modes.put(WindowSource.POW, rmsView);
     }
@@ -101,7 +104,7 @@ public class OnlineDataLine<T extends DataContainer> extends ExtendedDataLine<T>
     protected void calculateView(int start, int end) {
         if (modes == null)
             return;
-        if (online == false) {
+        if (!online) {
             super.calculateView(start, end);
             return;
         }

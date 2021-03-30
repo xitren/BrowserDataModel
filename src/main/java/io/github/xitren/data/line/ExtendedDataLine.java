@@ -1,5 +1,6 @@
 package io.github.xitren.data.line;
 
+import io.github.xitren.data.NMath;
 import io.github.xitren.data.container.DataContainer;
 import io.github.xitren.data.container.StaticDataContainer;
 import io.github.xitren.data.window.WindowDynamicParser;
@@ -17,10 +18,10 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     protected final Set<WindowDynamicParser> parsers = new HashSet<>();
     protected final Set<DataLineMode> mode = new HashSet<>();
     protected final Map<WindowSource, double[][]> modes = new HashMap<>();
-    protected final double[][] filterView = new double[2][OVERVIEW_SIZE];
+    protected final double[][] filterView = new double[3][OVERVIEW_SIZE];
     protected final double[][] dctFilterView = new double[2][OVERVIEW_SIZE];
     protected final double[][] dctView = new double[2][OVERVIEW_SIZE];
-    protected final double[][] rmsView = new double[2][OVERVIEW_SIZE];
+    protected final double[][] rmsView = new double[3][OVERVIEW_SIZE];
     protected int rmsWindow = 30;
     protected FIR filter = null;
     protected DataContainer dataArrayFiltered;
@@ -117,7 +118,10 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         DataContainer.datacopy(dataArrayFiltered, view[0], filterView[0], 0, ss);
         for (int i = 0; i < ss; i++) {
             filterView[1][i] = (view[0] + i);
+            filterView[2][i] = (view[0] + i) / discretisation;
         }
+        fillRest(filterView[1], ss);
+        fillRest(filterView[2], ss);
         modes.put(WindowSource.FILTERED, filterView);
     }
 
@@ -177,7 +181,10 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         }
         for (int i = 0; i < ss; i++) {
             rmsView[1][i] = (view[0] + (i) / multer);
+            rmsView[2][i] = (view[0] + (i) / multer) / discretisation;
         }
+        fillRest(rmsView[1], ss);
+        fillRest(rmsView[2], ss);
         modes.put(WindowSource.POW, rmsView);
     }
 
@@ -259,6 +266,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         System.arraycopy(dataViewPrep, dataViewPrep.length - OVERVIEW_SIZE, usualView[0], 0, OVERVIEW_SIZE);
         for (int i = 0; i < usualView[1].length; i++) {
             usualView[1][i] = (view[0] + (i) / multer);
+            usualView[2][i] = (view[0] + (i) / multer) / discretisation;
         }
         modes.put(WindowSource.FILTERED, usualView);
     }
@@ -315,6 +323,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         }
         for (int i = 0; i < rmsView[1].length; i++) {
             rmsView[1][i] = (view[0] + (i) / multer);
+            rmsView[2][i] = (view[0] + (i) / multer) / discretisation;
         }
         modes.put(WindowSource.POW, rmsView);
     }
@@ -425,6 +434,22 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
             case USUAL:
             default:
                 return usualView[1];
+        }
+    }
+
+    public double[] getSecondsView(DataLineMode m) {
+        switch (m) {
+            case POWER:
+                return rmsView[2];
+            case FOURIER:
+                return dctView[1];
+            case FILTER:
+                return filterView[2];
+            case FILTERED_FOURIER:
+                return dctFilterView[1];
+            case USUAL:
+            default:
+                return usualView[2];
         }
     }
 

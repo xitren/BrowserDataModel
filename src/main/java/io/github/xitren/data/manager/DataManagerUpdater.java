@@ -29,8 +29,8 @@ public abstract class DataManagerUpdater<V extends OnlineDataLine<T>, T extends 
         return true;
     };
     protected final Callable<Boolean> markUpdater = () -> {
-//        setChanged();
-//        notifyObservers(DataManagerAction.MarksUpdated);
+        setChanged();
+        notifyObservers(DataManagerAction.MarksUpdated);
         return true;
     };
     protected final Callable<Boolean> overviewUpdater = () -> {
@@ -198,6 +198,8 @@ public abstract class DataManagerUpdater<V extends OnlineDataLine<T>, T extends 
     private void updateView() {
         if (swapper == null)
             return;
+        if (online)
+            setTailView();
         for (int i = 0; i < swapper.length; i++) {
             OnlineDataLine dl = dataLines[swapper[i]];
             dl.clearModes();

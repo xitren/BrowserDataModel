@@ -42,6 +42,20 @@ public class DataManagerView<V extends OnlineDataLine<T>, T extends DataContaine
             }
     }
 
+    protected int getMaxView() {
+        OnlineDataLine dl = null;
+        synchronized (this) {
+            for (int i = 0; i < swapper.length; i++) {
+                dl = dataLines[swapper[i]];
+                dl.setOnline(true);
+            }
+        }
+        if (dl == null)
+            return 0;
+        else
+            return dl.getMaxView();
+    }
+
     protected void setTailView() {
         OnlineDataLine dl = null;
         synchronized (this) {

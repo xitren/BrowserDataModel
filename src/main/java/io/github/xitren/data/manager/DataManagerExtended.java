@@ -57,5 +57,10 @@ public class DataManagerExtended<V extends ExtendedDataLine<T>, T extends DataCo
 
     public void setDiscretization(int discretization) {
         this.discretisation = discretization;
+        this.timePeriod = 1 / discretization;
+    }
+
+    public double getTimePeriod() {
+        return timePeriod;
     }
 }
