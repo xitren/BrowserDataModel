@@ -12,7 +12,6 @@ public class DataManagerExtended<V extends ExtendedDataLine<T>, T extends DataCo
 
     public DataManagerExtended(V[] edl) {
         super(edl);
-
     }
 
     public void cut(int start, int size) {

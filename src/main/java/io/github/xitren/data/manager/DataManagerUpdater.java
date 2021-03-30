@@ -29,6 +29,7 @@ public abstract class DataManagerUpdater<V extends OnlineDataLine<T>, T extends 
         return true;
     };
     protected final Callable<Boolean> markUpdater = () -> {
+        updateMarks();
         setChanged();
         notifyObservers(DataManagerAction.MarksUpdated);
         return true;
@@ -42,6 +43,7 @@ public abstract class DataManagerUpdater<V extends OnlineDataLine<T>, T extends 
         return true;
     };
 
+    protected abstract void updateMarks();
     protected abstract void updateValues();
     protected abstract void updateOverviewValues();
 
@@ -50,6 +52,7 @@ public abstract class DataManagerUpdater<V extends OnlineDataLine<T>, T extends 
             if (!futureView.isDone())
                 return;
         futureView = executorService.submit(viewUpdater);
+        callMarkUpdate();
     }
 
     public final synchronized void callMarkUpdate() {
