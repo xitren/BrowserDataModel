@@ -17,11 +17,15 @@ public class DataManager<V extends DataLine<T>, T extends DataContainer> extends
 
     public DataManager(V[] edl) {
         swapper = new Integer[edl.length];
-        modes = new DataLineMode[edl.length];
         dataLines = edl;
         for (int i = 0;i < dataLines.length;i++) {
             swapper[i] = i;
-            modes[i] = DataLineMode.USUAL;
+        }
+        modes = new DataLineMode[swapper.length];
+        synchronized (modes) {
+            for (int i = 0; i < modes.length; i++) {
+                modes[i] = DataLineMode.USUAL;
+            }
         }
     }
 
@@ -43,6 +47,12 @@ public class DataManager<V extends DataLine<T>, T extends DataContainer> extends
     }
 
     public void setSwapper(@NotNull Integer[] swapper) {
+        modes = new DataLineMode[swapper.length];
+        synchronized (modes) {
+            for (int i = 0; i < modes.length; i++) {
+                modes[i] = DataLineMode.USUAL;
+            }
+        }
         synchronized (this.swapper) {
             for (Integer sw : swapper) {
                 if (!((0 <= sw) && (sw < dataLines.length))) {

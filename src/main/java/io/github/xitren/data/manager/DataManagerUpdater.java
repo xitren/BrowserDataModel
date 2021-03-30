@@ -6,15 +6,13 @@ import io.github.xitren.data.line.OnlineDataLine;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class DataManagerUpdater<V extends OnlineDataLine<T>, T extends DataContainer> extends DataManagerView<V, T> {
+public abstract class DataManagerUpdater<V extends OnlineDataLine<T>, T extends DataContainer> extends DataManagerView<V, T> {
     private boolean overviewSuppressed = false;
     protected boolean stop = false;
     private boolean online = true;
@@ -25,22 +23,27 @@ public class DataManagerUpdater<V extends OnlineDataLine<T>, T extends DataConta
 
     protected final Callable<Boolean> viewUpdater = () -> {
         updateView();
+        updateValues();
         setChanged();
         notifyObservers(DataManagerAction.ViewUpdated);
         return true;
     };
     protected final Callable<Boolean> markUpdater = () -> {
-        setChanged();
-        notifyObservers(DataManagerAction.MarksUpdated);
+//        setChanged();
+//        notifyObservers(DataManagerAction.MarksUpdated);
         return true;
     };
     protected final Callable<Boolean> overviewUpdater = () -> {
         unsetOverview();
         updateOverview();
+        updateOverviewValues();
         setChanged();
         notifyObservers(DataManagerAction.OverviewUpdated);
         return true;
     };
+
+    protected abstract void updateValues();
+    protected abstract void updateOverviewValues();
 
     public final synchronized void callViewUpdate() {
         if (futureView != null)
@@ -53,14 +56,14 @@ public class DataManagerUpdater<V extends OnlineDataLine<T>, T extends DataConta
         if (futureMark != null)
             if (!futureMark.isDone())
                 return;
-        futureMark = executorService.submit(viewUpdater);
+        futureMark = executorService.submit(markUpdater);
     }
 
     public final synchronized void callOverviewUpdate() {
         if (futureOverview != null)
             if (!futureOverview.isDone())
                 return;
-        futureOverview = executorService.submit(viewUpdater);
+        futureOverview = executorService.submit(overviewUpdater);
     }
 
     public DataManagerUpdater(V[] edl) {
@@ -69,6 +72,7 @@ public class DataManagerUpdater<V extends OnlineDataLine<T>, T extends DataConta
         callOverviewUpdate();
     }
 
+    @Override
     public void setSwapper(@NotNull Integer[] swapper) {
         super.setSwapper(swapper);
         callViewUpdate();
@@ -100,6 +104,9 @@ public class DataManagerUpdater<V extends OnlineDataLine<T>, T extends DataConta
 
     public void setOnline(boolean online) {
         this.online = online;
+        for (int i = 0;i < dataLines.length;i++) {
+            dataLines[i].setOnline(online);
+        }
     }
 
     public boolean isOverviewSuppressed() {
@@ -112,28 +119,33 @@ public class DataManagerUpdater<V extends OnlineDataLine<T>, T extends DataConta
             callOverviewUpdate();
     }
 
+    @Override
     public void clearMarks() {
         super.clearMarks();
         callMarkUpdate();
     }
 
+    @Override
     protected void addMark(int ch, int start, int finish, String name,
                            String color, String label_color) {
         super.addMark(ch, start, finish, name, color, label_color);
         callMarkUpdate();
     }
 
+    @Override
     protected void addGlobalMark(int start, int finish, String name,
                                  String color, String label_color) {
         super.addGlobalMark(start, finish, name, color, label_color);
         callMarkUpdate();
     }
 
+    @Override
     public void setFilterGlobal(@NotNull double[] data) {
         super.setFilterGlobal(data);
         callViewUpdate();
     }
 
+    @Override
     public void addData(@NotNull double[][] data) {
         if (stop)
             return;
@@ -142,6 +154,7 @@ public class DataManagerUpdater<V extends OnlineDataLine<T>, T extends DataConta
         callViewUpdate();
     }
 
+    @Override
     public void addData(@NotNull long[][] data) {
         if (stop)
             return;
@@ -174,6 +187,7 @@ public class DataManagerUpdater<V extends OnlineDataLine<T>, T extends DataConta
         }
     }
 
+    @Override
     public void cut(int start, int size) {
         super.cut(start, size);
         callOverviewUpdate();
@@ -194,21 +208,25 @@ public class DataManagerUpdater<V extends OnlineDataLine<T>, T extends DataConta
         }
     }
 
+    @Override
     protected void setView(int start, int end) {
         super.setView(start, end);
         callViewUpdate();
     }
 
+    @Override
     protected void setMaxView() {
         super.setMaxView();
         callViewUpdate();
     }
 
+    @Override
     protected void setTailView() {
         super.setTailView();
         callViewUpdate();
     }
 
+    @Override
     public void setCurrentMark(String name, String color, String label_color) {
         super.setCurrentMark(name, color, label_color);
         callMarkUpdate();

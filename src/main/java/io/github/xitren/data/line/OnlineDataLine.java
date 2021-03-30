@@ -7,7 +7,7 @@ import edu.emory.mathcs.jtransforms.dct.DoubleDCT_1D;
 import org.jetbrains.annotations.NotNull;
 
 public class OnlineDataLine<T extends DataContainer> extends ExtendedDataLine<T> {
-    private boolean online;
+    private boolean online = true;
 
     public OnlineDataLine(@NotNull T data, String name) {
         super(data, name);

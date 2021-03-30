@@ -79,7 +79,7 @@ public class DataLine<T extends DataContainer> {
         viewActual = true;
     }
 
-    public void calculateOverview() {
+    public synchronized void calculateOverview() {
         if (this.overviewActual == true)
             return;
         if (dataArray.length() >= OVERVIEW_SIZE) {

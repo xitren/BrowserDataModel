@@ -4,7 +4,7 @@ import io.github.xitren.data.container.DataContainer;
 import io.github.xitren.data.line.OnlineDataLine;
 import org.jetbrains.annotations.NotNull;
 
-public class DataManagerMapper<V extends OnlineDataLine<T>, T extends DataContainer> extends DataManagerUpdater<V, T> {
+public abstract class DataManagerMapper<V extends OnlineDataLine<T>, T extends DataContainer> extends DataManagerUpdater<V, T> {
 
     public DataManagerMapper(V[] edl) {
         super(edl);
