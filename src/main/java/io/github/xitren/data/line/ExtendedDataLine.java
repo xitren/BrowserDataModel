@@ -25,8 +25,8 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     protected FIR filter = null;
     protected DataContainer dataArrayFiltered;
 
-    public ExtendedDataLine(@NotNull T _data) {
-        super(_data);
+    public ExtendedDataLine(@NotNull T data, String name) {
+        super(data, name);
         mode.add(DataLineMode.USUAL);
         setFilter(new FIR(new double[]{1.}));
     }
@@ -43,6 +43,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         parsers.remove(pars);
     }
 
+    @Override
     public void add(@NotNull double[] datum) {
         if (dataArray instanceof StaticDataContainer)
             return;
@@ -56,14 +57,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         this.overviewActual = false;
     }
 
-    public void add(@NotNull int[] datum) {
-        double[] doubles = new double[datum.length];
-        for(int i=0;i < datum.length;i++) {
-            doubles[i] = datum[i];
-        }
-        add(doubles);
-    }
-
+    @Override
     public void add(@NotNull long[] datum) {
         double[] doubles = new double[datum.length];
         for(int i=0;i < datum.length;i++) {
@@ -100,6 +94,7 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         return filter;
     }
 
+    @Override
     public void setFilter(@NotNull FIR filter) {
         if (filter == null)
             return;

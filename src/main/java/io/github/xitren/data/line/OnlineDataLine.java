@@ -6,11 +6,11 @@ import io.github.xitren.data.window.WindowSource;
 import edu.emory.mathcs.jtransforms.dct.DoubleDCT_1D;
 import org.jetbrains.annotations.NotNull;
 
-public class OnlineDataLine<T extends DataContainer> extends ExtendedDataLine<DataContainer> {
+public class OnlineDataLine<T extends DataContainer> extends ExtendedDataLine<T> {
     private boolean online;
 
-    public OnlineDataLine(@NotNull DataContainer _data) {
-        super(_data);
+    public OnlineDataLine(@NotNull T data, String name) {
+        super(data, name);
     }
 
     public boolean isOnline() {

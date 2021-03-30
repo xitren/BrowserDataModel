@@ -1,11 +1,13 @@
 package io.github.xitren.data.line;
 
+import io.github.xitren.data.FIR;
 import io.github.xitren.data.container.DataContainer;
 import org.jetbrains.annotations.NotNull;
 
 public class DataLine<T extends DataContainer> {
-    protected final static int VIEW_PREP_SIZE = 100;
+    private final String name;
     public final static int OVERVIEW_SIZE = 2048;
+    protected final static int VIEW_PREP_SIZE = 100;
     protected final static int FILTER_ORDER = 30;
     protected final T dataArray;
     protected final double[][] overview = new double[2][OVERVIEW_SIZE];
@@ -18,10 +20,15 @@ public class DataLine<T extends DataContainer> {
     protected double discretisationView = 250;
     protected int activeView = OVERVIEW_SIZE;
 
-    public DataLine(@NotNull T _data) {
-        dataArray = _data;
+    public DataLine(@NotNull T data, String name) {
+        dataArray = data;
+        this.name = name;
         calculateOverview();
         calculateView(0, dataArray.length());
+    }
+
+    public String getName() {
+        return name;
     }
 
     public boolean isOverviewActual() {
@@ -90,11 +97,7 @@ public class DataLine<T extends DataContainer> {
     }
 
     public void setView(int start, int end) {
-        try {
-            calculateView(start, end);
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            System.out.println(ex);
-        }
+        calculateView(start, end);
     }
 
     public int getMaxView() {
