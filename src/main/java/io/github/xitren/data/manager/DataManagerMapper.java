@@ -13,24 +13,24 @@ public class DataManagerMapper<V extends OnlineDataLine<T>, T extends DataContai
     public void addDataMap(@NotNull double[][] data, int[] src, int[] map) {
         if (stop)
             return;
-        synchronized (this) {
+        synchronized (dataLines) {
             for (int i=0;i < map.length && i < src.length;i++) {
-                dataLines.get(map[i]).add(data[src[i]]);
+                dataLines[map[i]].add(data[src[i]]);
             }
-            needUpdateOverview = true;
-            needUpdateView = true;
         }
+        callOverviewUpdate();
+        callViewUpdate();
     }
 
     public void addDataMap(@NotNull long[][] data, int[] src, int[] map) {
         if (stop)
             return;
-        synchronized (this) {
+        synchronized (dataLines) {
             for (int i=0;i < map.length && i < src.length;i++) {
-                dataLines.get(map[i]).add(data[src[i]]);
+                dataLines[map[i]].add(data[src[i]]);
             }
-            needUpdateOverview = true;
-            needUpdateView = true;
         }
+        callOverviewUpdate();
+        callViewUpdate();
     }
 }

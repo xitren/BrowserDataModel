@@ -19,8 +19,8 @@ public class DataManagerView<V extends OnlineDataLine<T>, T extends DataContaine
             view[1] = end;
         }
         synchronized (dataLines) {
-            for (int i = 0; i < getSwapper().length; i++) {
-                V dl = dataLines.get(getSwapper()[i]);
+            for (int i = 0; i < swapper.length; i++) {
+                V dl = dataLines[swapper[i]];
                 dl.setOnline(false);
             }
         }
@@ -29,8 +29,8 @@ public class DataManagerView<V extends OnlineDataLine<T>, T extends DataContaine
     protected void setMaxView() {
         OnlineDataLine dl = null;
         synchronized (dataLines) {
-            for (int i = 0; i < dataLines.size(); i++) {
-                dl = dataLines.get(getSwapper()[i]);
+            for (int i = 0; i < swapper.length; i++) {
+                dl = dataLines[swapper[i]];
                 dl.setOnline(false);
                 break;
             }
@@ -45,8 +45,8 @@ public class DataManagerView<V extends OnlineDataLine<T>, T extends DataContaine
     protected void setTailView() {
         OnlineDataLine dl = null;
         synchronized (this) {
-            for (int i = 0; i < getSwapper().length; i++) {
-                dl = dataLines.get(getSwapper()[i]);
+            for (int i = 0; i < swapper.length; i++) {
+                dl = dataLines[swapper[i]];
                 dl.setOnline(true);
             }
         }

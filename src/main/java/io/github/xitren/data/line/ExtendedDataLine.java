@@ -43,7 +43,6 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         parsers.remove(pars);
     }
 
-    @Override
     public void add(@NotNull double[] datum) {
         if (dataArray instanceof StaticDataContainer)
             return;
@@ -57,7 +56,6 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         this.overviewActual = false;
     }
 
-    @Override
     public void add(@NotNull long[] datum) {
         double[] doubles = new double[datum.length];
         for(int i=0;i < datum.length;i++) {
@@ -94,7 +92,6 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         return filter;
     }
 
-    @Override
     public void setFilter(@NotNull FIR filter) {
         if (filter == null)
             return;
@@ -390,10 +387,12 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         checkView(start, end);
         modes.clear();
         int ss = (view[1] - view[0]);
-        if (ss >= (OVERVIEW_SIZE)) {
-            calculateReducedView(start, end);
-        } else {
-            calculateSimpleView(start, end);
+        synchronized (modes) {
+            if (ss >= (OVERVIEW_SIZE)) {
+                calculateReducedView(start, end);
+            } else {
+                calculateSimpleView(start, end);
+            }
         }
     }
 
