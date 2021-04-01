@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>io.github.xitren.data</groupId>
+	<groupId>com.github.xitren.data</groupId>
 	<artifactId>browser-data-model</artifactId>
 	<version>1.5.1</version>
 	<packaging>jar</packaging>
@@ -168,17 +168,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<profiles>
-		<profile>
-			<id>ossrh</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<gpg.executable>gpg2</gpg.executable>
-				<gpg.passphrase>13I1m0p0erior</gpg.passphrase>
-			</properties>
-		</profile>
-	</profiles>
 </project>
