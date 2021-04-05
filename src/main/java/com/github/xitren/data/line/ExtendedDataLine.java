@@ -31,18 +31,33 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         setFilter(new FIR(new double[]{1.}));
     }
 
+    /**
+     * Функция полностью отчищает SET parsers
+     */
     public void clearParsers() {
         parsers.clear();
     }
 
+    /**
+     * Функция добавляет parser в SET parsers
+     * @param pars - название добавляемого парсера
+     */
     public void addParser(WindowDynamicParser pars) {
         parsers.add(pars);
     }
 
+    /**
+     * Функция удаляет parser в SET parsers
+     * @param pars - название удаляемого парсера
+     */
     public void removeParser(WindowDynamicParser pars) {
         parsers.remove(pars);
     }
 
+    /**
+     * Функция применяет фильтр на входной массив данных
+     * @param datum - входной массив данных
+     */
     public void add(@NotNull double[] datum) {
         if (dataArray instanceof StaticDataContainer)
             return;
@@ -56,6 +71,11 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
         this.overviewActual = false;
     }
 
+    /**
+     * Функция применяет фильтр на входной массив данных типа long
+     * предварительно переконвертировав его в тип double
+     * @param datum - входной массив данных
+     */
     public void add(@NotNull long[] datum) {
         double[] doubles = new double[datum.length];
         for(int i=0;i < datum.length;i++) {

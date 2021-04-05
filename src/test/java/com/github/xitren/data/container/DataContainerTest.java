@@ -187,4 +187,21 @@ class DataContainerTest {
         System.out.println(max + " "+ dst[0]+" "+ min+" "+ dst[1]);
 
     }
+
+
+    @Test
+    void testReduce_pow() {
+        double[] array = new double[100];
+        for (int i = 0; i< array.length;i++){
+            array[i] = i;
+        }
+        StaticDataContainer sdc = new StaticDataContainer(array);
+        double[] view = new double[10];
+        sdc.reduce_pow(view, sdc);
+        double max = array[0];
+        for(int i = 0; i<array.length; i++) {
+            max = Math.max(array[i], max);
+        }
+        assertEquals(view[view.length - 1], max);
+    }
 }

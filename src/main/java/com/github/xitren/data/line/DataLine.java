@@ -26,14 +26,25 @@ public class DataLine<T extends DataContainer> {
         calculateView(0, dataArray.length());
     }
 
+    /**
+     * Функция получения именни
+     * @return имя {@link DataLine}
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Функция получения значения viewActual в зависимсоти от занятости view
+     * @return viewActual {@link DataLine}
+     */
     public boolean isOverviewActual() {
         return overviewActual;
     }
 
+    /**
+     * Функция заполнения массива номерами первого и последнего элементов отрезка
+     */
     protected void checkView(int start, int end) {
         if ((end - start) < 0) {
             view[0] = end;
@@ -44,10 +55,13 @@ public class DataLine<T extends DataContainer> {
         }
         if (view[0] < 0)
             view[0] = 0;
-        if (view[1] >= dataArray.length())
-            view[1] = dataArray.length() - 1;
+        if (view[1] > dataArray.length())
+            view[1] = dataArray.length();
     }
 
+    /**
+     * Функция считает view для отрезка большего чем OVERVIEW_SIZE и опмещает в usualView[0] значеня, в usualView[1] номера элеиентов, в usualView[2] время
+     */
     protected void calculateReducedView() {
         double multer = OVERVIEW_SIZE / ((double) (view[1] - view[0]));
         discretisationView = discretisation * multer * 2;
@@ -59,6 +73,9 @@ public class DataLine<T extends DataContainer> {
         }
     }
 
+    /**
+     * Функция считает view для отрезка меньшего чем OVERVIEW_SIZE и помещает в usualView[0] значеня, в usualView[1] номера элеиентов, в usualView[2] время
+     */
     protected void calculateSimpleView() {
         discretisationView = discretisation;
         DataContainer.datacopy(dataArray, view[0], usualView[0], 0, view[1] - view[0]);
@@ -78,6 +95,11 @@ public class DataLine<T extends DataContainer> {
         }
     }
 
+    /**
+     * Функция выбирает метод подсчёта view в зависимости от входного отрезка
+     * @param start - номер начального элемента
+     * @param end - номер конечного элемента
+     */
     protected void calculateView(int start, int end) {
         checkView(start, end);
         if ((view[1] - view[0]) >= OVERVIEW_SIZE) {
@@ -90,6 +112,9 @@ public class DataLine<T extends DataContainer> {
         viewActual = true;
     }
 
+    /**
+     * Функция считает view для для всего массива и помещает в overview[0] значеня, в overview[1] номера элеиентов, в overview[2] время
+     */
     public synchronized void calculateOverview() {
         if (this.overviewActual == true)
             return;
@@ -109,48 +134,98 @@ public class DataLine<T extends DataContainer> {
         this.overviewActual = true;
     }
 
+    /**
+     * Функция считает view для отрезка от start до end
+     * @param start - номер начального элемента массива
+     * @param end - номер конечного элемента массива
+     */
     public void setView(int start, int end) {
         calculateView(start, end);
     }
 
+    /**
+     * Функция считает длину входящего датаконтейнера
+     * @return возвращает длину {@link DataContainer}
+     */
     public int getMaxView() {
         return dataArray.length();
     }
 
+    /**
+     * Функция позволяет установить свою дискретизацию
+     * @param disc - значение задваемое для дискретизации
+     */
     public void setDiscretisation(double disc) {
         this.discretisation = disc;
     }
 
+    /**
+     * Функция позволяет вернуть даннные в авиде массива
+     * @return возвращает макссив данных
+     */
     public double[] toArray() {return DataContainer.toArray(this.dataArray);}
 
+    /**
+     * Функция позволяет вернуть даннные из usualView
+     * @return возвращает макссив данных
+     */
     public double[] getDataView(){
         return usualView[0];
     }
 
+    /**
+     * Функция позволяет вернуть номера данных из usualView
+     * @return возвращает макссив данных
+     */
     public double[] getTimeView(){
         return usualView[1];
     }
 
+    /**
+     * Функция позволяет вернуть даннные из usualView
+     * @return возвращает макссив данных
+     */
     public double[] getSecondsView(){
         return usualView[2];
     }
 
+    /**
+     * Функция позволяет вернуть время в секундах для каждого элемента из overView
+     * @return возвращает макссив данных
+     */
     public double[] getDataOverview(){
         return overview[0];
     }
 
+    /**
+     * Функция позволяет вернуть номера данных для каждого элемента из overView
+     * @return возвращает макссив данных
+     */
     public double[] getTimeOverview() {
         return overview[1];
     }
 
+    /**
+     * Функция позволяет вернуть время в секундах для каждого элемента из overView
+     * @return возвращает макссив данных
+     */
     public double[] getSecondsOverview() {
         return overview[2];
     }
 
+    /**
+     * Функция позволяет вернуть длину активного View
+     * @return возвращает длину используемого view
+     */
     public int getActiveView() {
         return activeView;
     }
 
+    /**
+     * Функция вырезает отрезок из view от start размером size
+     * @param start номер начального элемента отрезка
+     * @param size размер вырезаемого отрезка
+     */
     public void cut(int start, int size) {
         dataArray.cut(start, size);
         calculateView(0, size);

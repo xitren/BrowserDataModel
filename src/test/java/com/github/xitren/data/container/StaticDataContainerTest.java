@@ -129,20 +129,21 @@ class StaticDataContainerTest {
     @Test
     void datacopy() {
         int size = 100;
-        double[] array = new double[size];
-        for (int i = 0; i< array.length;i++){
-            array[i] = i;
+        double[] array1 = new double[size];
+        for (int i = 0; i< array1.length;i++){
+            array1[i] = i*2;
         }
-        StaticDataContainer sdc = new StaticDataContainer(array);
-        int srcPos = 0;
+        StaticDataContainer sdc1 = new StaticDataContainer(array1);
+        int srcPos = 2;
         int destPos =0;
         int sizeBlock = 10;
         double[] view1 = new double[size];
         double[] view2 = new double[size];
-        sdc.datacopy(srcPos, view1, destPos, sizeBlock);
+        sdc1.datacopy(sdc1, srcPos, view1, destPos, sizeBlock);
         int j = destPos;
-        for (int i = srcPos; i<sizeBlock; i++){
-            view2[j] = array[i];
+        for (int i = 0; i<sizeBlock; i++){
+            System.out.println(view1[i]);
+            view2[j] = array1[i+srcPos];
             j = j+1;
         }
         assertArrayEquals(view1, view2);
@@ -155,14 +156,16 @@ class StaticDataContainerTest {
         for (int i = 0; i< array.length;i++){
             array[i] = i;
         }
-        int sizeCut = 47;
+        int sizeCut = 5;
         int start = 5;
         StaticDataContainer sdc = new StaticDataContainer(array);
         sdc.cut(start, sizeCut);
         double[] view1 = new double[sizeCut];
         double[] view2 = new double[sizeCut];
         for (int i = 0; i<sizeCut; i++){
+            //System.out.println(sdc.get(i));
             view1[i] = sdc.get(i);
+
         }
         for (int i = 0; i<sizeCut; i++){
             view2[i] = array[start+i];
