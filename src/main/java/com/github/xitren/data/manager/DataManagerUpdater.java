@@ -64,7 +64,7 @@ public abstract class DataManagerUpdater<V extends OnlineDataLine<T>, T extends 
 
     public final synchronized void callOverviewUpdate() {
         if (futureOverview != null)
-            if (!futureOverview.isDone())
+            if (!futureOverview.isDone() || overviewSuppressed)
                 return;
         futureOverview = executorService.submit(overviewUpdater);
     }
