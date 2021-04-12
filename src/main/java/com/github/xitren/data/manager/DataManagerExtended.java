@@ -31,7 +31,7 @@ public class DataManagerExtended<V extends ExtendedDataLine<T>, T extends DataCo
     }
 
     public void addData(@NotNull double[][] data) {
-        if (dataLines.length != data.length)
+        if (dataLines.length < data.length)
             throw new IndexOutOfBoundsException("Wrong index!");
         synchronized (dataLines) {
             for (int i = 0;i < dataLines.length;i++) {
@@ -41,7 +41,7 @@ public class DataManagerExtended<V extends ExtendedDataLine<T>, T extends DataCo
     }
 
     public void addData(@NotNull long[][] data) {
-        if (dataLines.length != data.length)
+        if (dataLines.length > data.length)
             throw new IndexOutOfBoundsException("Wrong index!");
         synchronized (dataLines) {
             for (int i = 0;i < dataLines.length;i++) {

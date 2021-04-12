@@ -1,0 +1,1 @@
+jar -cvf bundle.jar browser-data-model-1.5.3.pom browser-data-model-1.5.3.pom.asc browser-data-model-1.5.3.jar browser-data-model-1.5.3.jar.asc browser-data-model-1.5.3-javadoc.jar browser-data-model-1.5.3-javadoc.jar.asc browser-data-model-1.5.3-sources.jar browser-data-model-1.5.3-sources.jar.asc
