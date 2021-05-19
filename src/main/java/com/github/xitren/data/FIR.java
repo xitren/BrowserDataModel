@@ -138,7 +138,7 @@ public class FIR {
      *
      * @return The length of the filter (the number of coefficients).
      */
-    private int getLength() {
+    public int getLength() {
         return m_nLength;
     }
 

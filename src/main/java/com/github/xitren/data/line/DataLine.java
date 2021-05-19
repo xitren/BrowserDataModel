@@ -5,25 +5,34 @@ import org.jetbrains.annotations.NotNull;
 
 public class DataLine<T extends DataContainer> {
     private final String name;
-    public final static int OVERVIEW_SIZE = 2048;
-    protected final static int VIEW_PREP_SIZE = 100;
-    protected final static int FILTER_ORDER = 30;
+    public static final int OVERVIEW_SIZE = 2048;
+    public final int overviewSize;
+    protected int filterOrder = 30;
     protected final T dataArray;
-    protected final double[][] overview = new double[3][OVERVIEW_SIZE];
-    protected final double[][] usualView = new double[3][OVERVIEW_SIZE];
-    protected final double[] dataViewPrep = new double[OVERVIEW_SIZE + FILTER_ORDER];
+    protected final double[][] overview;
+    protected final double[][] usualView;
+    protected double[] dataViewPrep;
     protected final int[] view = new int[2];
     protected boolean overviewActual = false;
     protected boolean viewActual = false;
     protected double discretisation = 250;
     protected double discretisationView = 250;
-    protected int activeView = OVERVIEW_SIZE;
+    protected int activeView;
 
-    public DataLine(@NotNull T data, String name) {
-        dataArray = data;
+    public DataLine(@NotNull T data, String name, int overviewSize) {
+        this.overviewSize = overviewSize;
+        this.dataArray = data;
         this.name = name;
+        this.activeView = overviewSize;
+        this.overview = new double[3][overviewSize];
+        this.usualView = new double[3][overviewSize];
+        this.dataViewPrep = new double[overviewSize + filterOrder];
         calculateOverview();
         calculateView(0, dataArray.length());
+    }
+
+    public DataLine(@NotNull T data, String name) {
+        this(data, name, OVERVIEW_SIZE);
     }
 
     /**
@@ -63,10 +72,10 @@ public class DataLine<T extends DataContainer> {
      * Функция считает view для отрезка большего чем OVERVIEW_SIZE и опмещает в usualView[0] значеня, в usualView[1] номера элеиентов, в usualView[2] время
      */
     protected void calculateReducedView() {
-        double multer = OVERVIEW_SIZE / ((double) (view[1] - view[0]));
+        double multer = overviewSize / ((double) (view[1] - view[0]));
         discretisationView = discretisation * multer * 2;
         double timeMultiplicand = DataContainer.reduce(dataViewPrep, dataArray, view[0], view[1] - view[0]);
-        System.arraycopy(dataViewPrep, dataViewPrep.length - OVERVIEW_SIZE, usualView[0], 0, OVERVIEW_SIZE);
+        System.arraycopy(dataViewPrep, dataViewPrep.length - overviewSize, usualView[0], 0, overviewSize);
         for (int i = 0; i < usualView[1].length; i++) {
             usualView[1][i] = (view[0] + (i) / multer);
             usualView[2][i] = (view[0] + (i) / multer) / discretisation;
@@ -88,9 +97,9 @@ public class DataLine<T extends DataContainer> {
     }
 
     public static void fillRest(double[] data, int ss) {
-        if (0 < (ss - 1) && ss >= OVERVIEW_SIZE)
+        if (0 < (ss - 1) && ss >= data.length)
             return;
-        for (int i = ss; i < OVERVIEW_SIZE; i++) {
+        for (int i = ss; i < data.length; i++) {
             data[i] = data[ss - 1];
         }
     }
@@ -102,8 +111,8 @@ public class DataLine<T extends DataContainer> {
      */
     protected void calculateView(int start, int end) {
         checkView(start, end);
-        if ((view[1] - view[0]) >= OVERVIEW_SIZE) {
-            activeView = OVERVIEW_SIZE;
+        if ((view[1] - view[0]) >= overviewSize) {
+            activeView = overviewSize;
             calculateReducedView();
         } else {
             activeView = view[1] - view[0];
@@ -118,7 +127,7 @@ public class DataLine<T extends DataContainer> {
     public synchronized void calculateOverview() {
         if (this.overviewActual == true)
             return;
-        if (dataArray.length() >= OVERVIEW_SIZE) {
+        if (dataArray.length() >= overviewSize) {
             double timeMultiplicand = DataContainer.reduce_pow(overview[0], dataArray);
             for (int i = 0; i < overview[1].length; i++) {
                 overview[1][i] = (i * timeMultiplicand);

@@ -115,6 +115,8 @@ public class ExtendedDataLine<T extends DataContainer> extends DataLine<T> {
     public void setFilter(@NotNull FIR filter) {
         if (filter == null)
             return;
+        this.filterOrder = filter.getLength();
+        this.dataViewPrep = new double[overviewSize + filterOrder];
         this.filter = filter;
         dataArrayFiltered = dataArray.clone();
         double[] fill = DataContainer.toArray(dataArray);
