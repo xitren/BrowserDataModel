@@ -5,7 +5,7 @@
 
 	<groupId>com.github.xitren.data</groupId>
 	<artifactId>browser-data-model</artifactId>
-	<version>1.6.1</version>
+	<version>1.6.2</version>
 	<packaging>jar</packaging>
 
 	<name>Data parser and view management</name>
