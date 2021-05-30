@@ -52,7 +52,6 @@ public abstract class DataManagerUpdater<V extends OnlineDataLine<T>, T extends 
             if (!futureView.isDone())
                 return;
         futureView = executorService.submit(viewUpdater);
-        callMarkUpdate();
     }
 
     public final synchronized void callMarkUpdate() {
