@@ -70,7 +70,7 @@ public class DataManagerView<V extends OnlineDataLine<T>, T extends DataContaine
                 view[0] = 0;
             } else {
                 view[1] = dl.getMaxView();
-                view[0] = view[1] - DataLine.OVERVIEW_SIZE;
+                view[0] = view[1] - dl.overviewSize;
             }
         }
     }
