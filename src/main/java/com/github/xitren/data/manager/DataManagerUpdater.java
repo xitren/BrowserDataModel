@@ -169,7 +169,7 @@ public abstract class DataManagerUpdater<V extends OnlineDataLine<T>, T extends 
         Set<Callable<Boolean>> taskList = new HashSet<>();
         for (int i=0;i < swapper.length;i++) {
             OnlineDataLine dl = dataLines[swapper[i]];
-            if (!dataLines[i].isOverviewActual()) {
+            if (!dl.isOverviewActual()) {
                 taskList.add(()->{
                     dl.calculateOverview();
                     return true;
