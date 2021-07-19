@@ -55,6 +55,16 @@ public abstract class DataContainer {
     }
 
     /**
+     * Функция разбиения контейнера {@link DataContainer} на усреднённые отрезки
+     * @param dst - массив для записи максимального и минимального значений
+     * @param src - массив в котором происходит поиск
+     * @return вызывет метод reduce_pow для всего контейнера
+     */
+    public static double reduce(@NotNull double[] dst, @NotNull double[] src) {
+        return reduce_pow(dst, src);
+    }
+
+    /**
      * Функция разбиения отрезка контейнера {@link DataContainer}  на усреднённые отрезки
      * @param dst - массив для записи максимального и минимального значений
      * @param src - контейнер {@link DataContainer} в котором происходит поиск
@@ -86,6 +96,50 @@ public abstract class DataContainer {
             powerate(dst, src, i - 1, i, x1, x2);
         }
         return over;
+    }
+
+    /**
+     * Функция разбиения контейнера {@link DataContainer} на усреднённые отрезки
+     * @param dst - массив для записи максимального и минимального значений
+     * @param src - массив в котором происходит поиск
+     * @return возвращает примерное количество получившихся отрезков
+     */
+    public static double reduce_pow(@NotNull double[] dst, @NotNull double[] src) {
+        double over = (double)src.length / (double)dst.length;
+        for (int i = 1; i < dst.length; i+=2) {
+            int x2 = (int)Math.round((double)i * over);
+            int x1 = (int)Math.round((double)(i - 1) * over);
+            powerate(dst, src, i - 1, i, x1, x2);
+        }
+        return over;
+    }
+
+    /**
+     * Функция поиска максимального и минимального значения в {@link DataContainer} от элемента с номером х1 до элемента с номером х2
+     * @param dst - массив для записи максимального и минимального значений
+     * @param src - массив в котором происходит поиск
+     * @param i1 - номер элемента массива src куда будет помещено одно из значений
+     * @param i2 - номер элемента массива src куда будет помещено одно из значений
+     * @param x1 - начальный номер элемента массива, обозначающий начало отрезка перебора
+     * @param x2 - начальный номер элемента массива, обозначающий конец отрезка перебора
+     */
+    public static void powerate(@NotNull double[] dst, @NotNull double[] src, int i1, int i2, int x1, int x2) {
+        double st = src[x1];
+        double end = src[x2];
+        double min = st;
+        double max = st;
+        for (int i = x1; i <= x2; i++) {
+            double ii = src[i];
+            min = Math.min(ii, min);
+            max = Math.max(ii, max);
+        }
+        if (end < st) {
+            dst[i1] = max;
+            dst[i2] = min;
+        } else {
+            dst[i1] = min;
+            dst[i2] = max;
+        }
     }
 
     /**
